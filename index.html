@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chá do Noah</title>
+  <meta name="description" content="Coloque seu nome e seu WhatsApp e ganhe um recado do Noah e o lembrete da fralda que você vai levar.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Chá do Noah 💙">
+  <meta property="og:description" content="Coloque seu nome e ganhe um recado do Noah e o lembrete da sua fralda.">
+  <meta property="og:url" content="https://jm-dataanalytics.github.io/cha-do-noah/">
+  <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="theme-color" content="#D3E8FA">
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <main class="pagina">
+    <header class="topo">
+      <div class="bebe" id="bebe"></div>
+      <h1 id="titulo">Chá do Noah</h1>
+      <p class="data" id="data"></p>
+    </header>
+
+    <section class="painel" aria-label="Pegar meus cartões">
+      <p class="explica">Coloque seu nome e seu WhatsApp. Você ganha um <strong>recado do Noah</strong> só pra você e o <strong>lembrete da fralda</strong> que vai levar.</p>
+      <form id="form" novalidate>
+        <label for="nome">Seu nome</label>
+        <input id="nome" name="nome" type="text" autocomplete="name" maxlength="40" placeholder="Ex.: Ana Paula" required>
+        <small class="dica-campo">Pode ser do jeito que a família te chama (ex.: Tia Bia).</small>
+        <label for="telefone">Seu WhatsApp (com DDD)</label>
+        <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(21) 99999-9999" required>
+        <p class="aviso" id="aviso" role="alert"></p>
+        <button class="botao botao-principal" id="gerar" type="submit">Gerar meus cartões</button>
+      </form>
+      <p class="privacidade">🔒 Seu nome e seu telefone não saem do seu aparelho.</p>
+    </section>
+
+    <section class="resultado" id="resultado" hidden>
+      <h2 id="resultado-titulo" aria-live="polite">Prontinho!</h2>
+      <p class="fralda" id="resultado-fralda"></p>
+      <div class="cartoes">
+        <figure>
+          <img id="img-recado" alt="Cartão com o recado do Noah" width="1080" height="1350">
+          <figcaption><span>Recado do Noah</span><a class="baixar" id="baixar-recado" download>⬇️ Baixar</a></figcaption>
+        </figure>
+        <figure>
+          <img id="img-lembrete" alt="Cartão com o lembrete da fralda" width="1080" height="1350">
+          <figcaption><span>Seu lembrete</span><a class="baixar" id="baixar-lembrete" download>⬇️ Baixar</a></figcaption>
+        </figure>
+      </div>
+      <div class="acoes">
+        <button class="botao botao-principal" id="compartilhar" type="button" hidden>📲 Salvar ou mandar os cartões</button>
+        <a class="botao botao-whatsapp" id="whatsapp" target="_blank" rel="noopener">💬 Mandar o lembrete pro meu WhatsApp</a>
+        <p class="aviso" id="aviso-resultado" role="alert"></p>
+        <p class="dica">No celular, também dá pra tocar e segurar no cartão pra salvar na galeria.</p>
+        <button class="link" id="outra" type="button">Fazer pra outra pessoa</button>
+      </div>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="desenhos.js"></script>
+  <script src="cartoes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

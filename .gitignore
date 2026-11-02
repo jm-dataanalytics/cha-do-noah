@@ -1,0 +1,7 @@
+# só do PC do jm (não vão pro GitHub)
+testes/
+CLAUDE.md
+*.log
+Thumbs.db
+desktop.ini
+.DS_Store
