@@ -3,9 +3,13 @@
   --azul-forte: #3c6fae;
   --azul-escuro: #24395c;
   --azul-claro: #dceefb;
+  --azul-marcado: #eaf3fd;
   --texto: #3a4f72;
   --suave: #5b6f8f;
   --borda: #d3e2f1;
+  --rosa: #e9849f;
+  --rosa-claro: #fff1f5;
+  --rosa-borda: #f4b6c6;
   --verde-whatsapp: #1f9d55;
   --aviso: #b5462f;
   color-scheme: light;
@@ -18,25 +22,73 @@
 html { -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--texto);
   background: #eaf4fd linear-gradient(180deg, #d3e8fa 0%, #eaf4fd 40%, #fff3e3 100%);
 }
 
 .pagina {
+  position: relative;
   max-width: 980px;
   margin: 0 auto;
-  padding: 18px 16px 48px;
+  padding: 18px 16px 24px;
+}
+
+/* ---------- céu do topo (nuvens e brilhinhos) ---------- */
+
+.ceu {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 460px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nuvem {
+  position: absolute;
+  fill: #fff;
+  opacity: 0.9;
+  animation: flutuar 9s ease-in-out infinite alternate;
+}
+
+.nuvem-1 { top: 54px; left: -36px; width: 150px; }
+.nuvem-2 { top: 168px; right: -30px; width: 128px; animation-duration: 11s; animation-delay: -3s; }
+.nuvem-3 { top: 330px; left: -48px; width: 110px; opacity: 0.7; animation-duration: 13s; }
+
+.brilho {
+  position: absolute;
+  width: 18px;
+  fill: #f5c451;
+  animation: piscar 2.8s ease-in-out infinite;
+}
+
+.brilho-1 { top: 40px; left: 22%; }
+.brilho-2 { top: 120px; right: 16%; width: 14px; fill: #fff; animation-delay: -1s; }
+.brilho-3 { top: 290px; right: 9%; width: 12px; animation-delay: -2s; }
+
+@keyframes flutuar {
+  from { transform: translateX(0); }
+  to { transform: translateX(18px); }
+}
+
+@keyframes piscar {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 /* ---------- topo ---------- */
 
-.topo { text-align: center; }
+.topo {
+  position: relative;
+  text-align: center;
+}
 
 .bebe {
-  width: 168px;
+  width: 172px;
   margin: 0 auto;
 }
 
@@ -44,6 +96,13 @@ body {
   display: block;
   width: 100%;
   height: auto;
+  transform-origin: 50% 92%;
+  animation: balancinho 3.4s ease-in-out infinite;
+}
+
+@keyframes balancinho {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
 }
 
 h1 {
@@ -56,17 +115,56 @@ h1 {
 }
 
 .data {
-  margin: 0 0 22px;
+  margin: 0;
   font-weight: 800;
   color: var(--suave);
 }
 
-/* ---------- formulário ---------- */
+/* ---------- formulário, com os bichinhos espiando por cima ---------- */
+
+.painel-espiado {
+  --w: 96px;
+  position: relative;
+  max-width: 520px;
+  margin: 92px auto 0;
+}
+
+.espia {
+  position: absolute;
+  z-index: 0;
+  width: var(--w);
+  top: calc(var(--w) * var(--borda) * -1);
+  animation: espiar 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.25) 0.25s both;
+}
+
+.espia svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.espia.frente {
+  z-index: 2;
+  animation: aparecer 0.35s ease-out 0.95s both;
+}
+
+.espia-esquerda { left: 18px; }
+.espia-direita { right: 18px; }
+
+@keyframes espiar {
+  from { transform: translateY(55%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 .painel {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 22px 20px;
+  position: relative;
+  z-index: 1;
+  padding: 24px 20px 20px;
   background: #fff;
   border-radius: 24px;
   box-shadow: 0 12px 32px rgba(36, 57, 92, 0.1);
@@ -79,14 +177,16 @@ h1 {
 
 .explica strong { color: var(--azul-escuro); }
 
-label {
+.rotulo {
   display: block;
   margin: 18px 0 6px;
+  padding: 0;
   font-weight: 800;
   color: var(--azul-escuro);
 }
 
-input {
+input[type="text"],
+input[type="tel"] {
   display: block;
   width: 100%;
   padding: 13px 14px;
@@ -102,7 +202,8 @@ input {
 
 input::placeholder { color: #94a6bf; }
 
-input:focus {
+input[type="text"]:focus,
+input[type="tel"]:focus {
   border-color: var(--azul);
   box-shadow: 0 0 0 4px rgba(79, 134, 198, 0.18);
 }
@@ -112,6 +213,181 @@ input:focus {
   margin-top: 6px;
   font-size: 0.88rem;
   color: var(--suave);
+}
+
+/* tamanhos: o rádio fica escondido e o "chip" ao lado dele é o botão que a pessoa vê */
+.escolha {
+  min-width: 0;
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.escolha legend.rotulo { margin: 0 0 10px; }
+
+.tamanhos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 10px;
+  padding-top: 6px;
+}
+
+.tamanho,
+.mimo {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.tamanho input,
+.mimo input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 78px;
+  padding: 12px 6px 10px;
+  text-align: center;
+  background: #fbfdff;
+  border: 2px solid var(--borda);
+  border-radius: 16px;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.tamanho:active .chip { transform: scale(0.97); }
+
+.tamanho-letra {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 1.65rem;
+  line-height: 1;
+  color: var(--azul-escuro);
+}
+
+.tamanho-nome {
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--suave);
+}
+
+.selo {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #7a5a00;
+  background: #ffefc2;
+  border-radius: 999px;
+}
+
+.tamanho input:checked + .chip {
+  background: var(--azul-marcado);
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(79, 134, 198, 0.2);
+}
+
+.tamanho input:checked + .chip .tamanho-letra { color: var(--azul-forte); }
+
+.tanto-faz { margin-top: 10px; }
+
+.tanto-faz .chip {
+  flex-direction: row;
+  gap: 6px;
+  min-height: 50px;
+  padding: 10px 14px;
+  font-weight: 800;
+  color: var(--azul-escuro);
+}
+
+/* mimo (opcional) */
+.mimo { margin-top: 14px; }
+
+.mimo .chip {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 0;
+  padding: 10px 14px 10px 10px;
+  text-align: left;
+}
+
+.mimo-presente {
+  flex: none;
+  width: 52px;
+}
+
+.mimo-presente svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mimo-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.mimo-textos strong { color: var(--azul-escuro); }
+
+.mimo-textos small {
+  font-size: 0.85rem;
+  color: var(--suave);
+}
+
+.mimo-marca {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--borda);
+  border-radius: 50%;
+  background: #fff;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.mimo input:checked + .chip {
+  background: var(--rosa-claro);
+  border-color: var(--rosa-borda);
+  box-shadow: 0 0 0 3px rgba(233, 132, 159, 0.18);
+}
+
+.mimo input:checked + .chip .mimo-marca {
+  background: var(--rosa);
+  border-color: var(--rosa);
+}
+
+.mimo input:checked + .chip .mimo-marca::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 7px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+.tamanho input:focus-visible + .chip,
+.mimo input:focus-visible + .chip {
+  outline: 3px solid var(--azul-escuro);
+  outline-offset: 2px;
 }
 
 .aviso {
@@ -128,13 +404,13 @@ input:focus {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 54px;
+  min-height: 56px;
   padding: 12px 18px;
   border: 0;
   border-radius: 16px;
   font-family: "Fredoka", "Nunito", sans-serif;
   font-weight: 600;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
@@ -163,7 +439,7 @@ input:focus {
   box-shadow: 0 6px 16px rgba(31, 157, 85, 0.28);
 }
 
-#form .botao { margin-top: 18px; }
+#form .botao { margin-top: 20px; }
 
 .botao:focus-visible,
 .baixar:focus-visible,
@@ -182,7 +458,7 @@ input:focus {
 /* ---------- cartões prontos ---------- */
 
 .resultado {
-  margin-top: 32px;
+  margin-top: 36px;
   scroll-margin-top: 12px;
 }
 
@@ -209,13 +485,6 @@ input:focus {
   gap: 18px;
   max-width: 520px;
   margin: 0 auto;
-}
-
-@media (min-width: 760px) {
-  .cartoes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 900px;
-  }
 }
 
 figure {
@@ -281,4 +550,40 @@ figcaption {
   border: 0;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.rodape {
+  padding: 8px 16px 28px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--suave);
+}
+
+.rodape-coracao { color: var(--rosa); }
+
+/* ---------- telas maiores ---------- */
+
+@media (min-width: 600px) {
+  .painel-espiado {
+    --w: 118px;
+    margin-top: 112px;
+  }
+  .painel { padding: 28px 28px 24px; }
+}
+
+@media (min-width: 760px) {
+  .cartoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 900px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

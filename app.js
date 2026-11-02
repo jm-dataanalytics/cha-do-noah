@@ -1,5 +1,5 @@
-// Chá do Noah: a pessoa coloca o nome e o WhatsApp, e o site faz 2 cartões em PNG
-// (o recado do Noah e o lembrete da fralda). Tudo acontece no aparelho dela.
+// Chá do Noah: a pessoa coloca o nome e o WhatsApp, escolhe a fralda (e, se quiser, o mimo), e o site
+// faz 2 cartões em PNG: o recado do Noah e o lembrete. Tudo acontece no aparelho dela.
 
 // ---------- regras ----------
 
@@ -52,12 +52,24 @@ function numeroDoTexto(texto) {
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
 
-// cada pacote da lista vira uma "vaga"; o telefone escolhe uma delas, então os tamanhos
-// saem na mesma proporção da lista (e a mesma pessoa sempre tira o mesmo)
+// "Tanto faz": cada pacote da lista vira uma "vaga" e o telefone escolhe uma, então o sorteio sai
+// na mesma proporção da lista (e a mesma pessoa sempre tira o mesmo)
 function fraldaPara(telefone) {
   const vagas = [];
   for (const f of CHA.fraldas) for (let i = 0; i < f.pacotes; i++) vagas.push(f);
   return vagas[numeroDoTexto(`fralda|${telefone}`) % vagas.length];
+}
+
+// "*" = tanto faz
+function fraldaEscolhida(tamanho, telefone) {
+  if (tamanho === "*") return fraldaPara(telefone);
+  return CHA.fraldas.find((f) => f.tamanho === tamanho) || null;
+}
+
+// os tamanhos de que vocês mais precisam ganham o selinho "mais pedido"
+function maisPedidos() {
+  const maior = Math.max(...CHA.fraldas.map((f) => f.pacotes));
+  return new Set(CHA.fraldas.filter((f) => f.pacotes === maior).map((f) => f.tamanho));
 }
 
 function recadoPara(telefone, nome) {
@@ -73,6 +85,11 @@ function recadoPara(telefone, nome) {
   return { saudacao, corpo };
 }
 
+function mimoPara(telefone, nome) {
+  const lista = CHA.mimo.mensagens;
+  return lista[numeroDoTexto(`mimo|${telefone}|${semAcento(nome).toLowerCase()}`) % lista.length].split("{nome}").join(nome);
+}
+
 function dataPorExtenso() {
   const [ano, mes, dia] = CHA.data.split("-").map(Number);
   const texto = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
@@ -80,8 +97,16 @@ function dataPorExtenso() {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-function montarDados(nome, telefone) {
-  return { nome, telefone, fralda: fraldaPara(telefone), ...recadoPara(telefone, nome), dataExtenso: dataPorExtenso() };
+function montarDados(nome, telefone, tamanho = "*", comMimo = false) {
+  return {
+    nome,
+    telefone,
+    fralda: fraldaEscolhida(tamanho, telefone),
+    tantoFaz: tamanho === "*",
+    mimo: comMimo ? mimoPara(telefone, nome) : "",
+    ...recadoPara(telefone, nome),
+    dataExtenso: dataPorExtenso(),
+  };
 }
 
 function textoDoWhatsApp(d, link) {
@@ -89,9 +114,9 @@ function textoDoWhatsApp(d, link) {
     `*${CHA.titulo}* 💙`,
     "",
     `Oi, ${d.nome}! Não esquece: no dia do chá, você vai levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`,
-    "",
-    `📅 ${d.dataExtenso}`,
   ];
+  if (d.mimo) linhas.push(`🎁 E um mimo pro ${CHA.bebe}: ${d.mimo}`);
+  linhas.push("", `📅 ${d.dataExtenso}`);
   if (CHA.horario) linhas.push(`⏰ ${CHA.horario}`);
   if (CHA.local) linhas.push(`📍 ${CHA.local}`);
   if (CHA.observacao) linhas.push("", CHA.observacao);
@@ -106,12 +131,14 @@ function textoDoWhatsApp(d, link) {
   const form = $("#form");
   const campoNome = $("#nome");
   const campoTelefone = $("#telefone");
+  const campoMimo = $("#mimo");
+  const listaTamanhos = $("#tamanhos");
   const aviso = $("#aviso");
   const botaoGerar = $("#gerar");
   const resultado = $("#resultado");
   const avisoResultado = $("#aviso-resultado");
   const MEMORIA = "cha-do-noah";
-  const TEXTO_BOTAO = botaoGerar.textContent;
+  const TEXTO_BOTAO = botaoGerar.innerHTML;
   let arquivos = [];
   let enderecos = [];
 
@@ -121,12 +148,53 @@ function textoDoWhatsApp(d, link) {
   $("#bebe").innerHTML = DESENHOS.paraSvg(DESENHOS.bebe, `Desenho do ${CHA.bebe}`);
   CARTOES.carregarFontes(); // as letras dos cartões já vão baixando
 
-  // quem já preencheu neste aparelho encontra o nome e o telefone de volta
+  // os bichinhos espiando por cima do formulário: a cabeça atrás do painel, as patinhas na frente
+  // (o CSS sobe cada desenho até a linha da borda ficar no topo do painel)
+  document.querySelectorAll("[data-bicho]").forEach((el) => {
+    const bicho = DESENHOS[el.dataset.bicho];
+    el.innerHTML = DESENHOS.paraSvg(DESENHOS.parte(bicho, el.dataset.parte));
+    el.style.setProperty("--borda", (bicho.borda / bicho.largura).toFixed(4));
+  });
+
+  // os tamanhos de fralda viram botões (do config.js)
+  const destaque = maisPedidos();
+  const criar = (tag, classe, texto) => {
+    const el = document.createElement(tag);
+    if (classe) el.className = classe;
+    if (texto) el.textContent = texto;
+    return el;
+  };
+  for (const f of CHA.fraldas) {
+    const opcao = criar("label", "tamanho");
+    const radio = criar("input");
+    radio.type = "radio";
+    radio.name = "tamanho";
+    radio.value = f.tamanho;
+    const chip = criar("span", "chip");
+    chip.append(criar("span", "tamanho-letra", f.tamanho), criar("span", "tamanho-nome", f.nome));
+    if (destaque.has(f.tamanho)) chip.append(criar("span", "selo", "mais pedido"));
+    opcao.append(radio, chip);
+    listaTamanhos.append(opcao);
+  }
+  $("#tanto-faz-texto").textContent = CHA.tantoFaz;
+  $("#mimo-convite").textContent = CHA.mimo.convite;
+  $("#mimo-explicacao").textContent = CHA.mimo.explicacao;
+  $("#mimo-presente").innerHTML = DESENHOS.paraSvg(DESENHOS.presente);
+
+  const tamanhoMarcado = () => {
+    const marcado = form.querySelector('input[name="tamanho"]:checked');
+    return marcado ? marcado.value : "";
+  };
+
+  // quem já preencheu neste aparelho encontra tudo de volta
   try {
     const salvo = JSON.parse(localStorage.getItem(MEMORIA) || "null");
     if (salvo) {
       campoNome.value = salvo.nome || "";
       campoTelefone.value = salvo.telefone || "";
+      campoMimo.checked = !!salvo.mimo;
+      const radio = salvo.tamanho && form.querySelector(`input[name="tamanho"][value="${CSS.escape(salvo.tamanho)}"]`);
+      if (radio) radio.checked = true;
     }
   } catch (e) {
     // navegador sem memória (aba anônima): tudo bem
@@ -139,7 +207,10 @@ function textoDoWhatsApp(d, link) {
 
   function avisar(texto, campo) {
     aviso.textContent = texto;
-    if (campo) campo.focus();
+    if (campo) {
+      campo.focus({ preventScroll: true });
+      campo.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }
 
   form.addEventListener("submit", async (e) => {
@@ -149,18 +220,20 @@ function textoDoWhatsApp(d, link) {
     if ((nome.match(/\p{L}/gu) || []).length < 2) return avisar("Escreva o seu nome.", campoNome);
     const telefone = telefoneValido(campoTelefone.value);
     if (!telefone) return avisar("Confira o WhatsApp: DDD + número, ex.: (21) 99999-9999.", campoTelefone);
+    const tamanho = tamanhoMarcado();
+    if (!tamanho) return avisar("Escolha o tamanho da fralda.", form.querySelector('input[name="tamanho"]'));
 
     botaoGerar.disabled = true;
     botaoGerar.textContent = "Fazendo seus cartões...";
     try {
-      const dados = montarDados(nome, telefone);
+      const dados = montarDados(nome, telefone, tamanho, campoMimo.checked);
       const telas = [await CARTOES.recado(dados), await CARTOES.lembrete(dados)];
       const pngs = await Promise.all(telas.map((t) => new Promise((ok) => t.toBlob(ok, "image/png"))));
       mostrarResultado(dados, pngs);
       campoNome.value = nome;
       campoTelefone.value = telefoneFormatado(telefone);
       try {
-        localStorage.setItem(MEMORIA, JSON.stringify({ nome, telefone: telefoneFormatado(telefone) }));
+        localStorage.setItem(MEMORIA, JSON.stringify({ nome, telefone: telefoneFormatado(telefone), tamanho, mimo: campoMimo.checked }));
       } catch (e2) {
         // sem memória: só não lembra na próxima vez
       }
@@ -169,7 +242,7 @@ function textoDoWhatsApp(d, link) {
       avisar("Não consegui fazer os cartões. Tente de novo.");
     } finally {
       botaoGerar.disabled = false;
-      botaoGerar.textContent = TEXTO_BOTAO;
+      botaoGerar.innerHTML = TEXTO_BOTAO;
     }
   });
 
@@ -188,7 +261,8 @@ function textoDoWhatsApp(d, link) {
     $("#baixar-lembrete").href = enderecos[1];
     $("#baixar-lembrete").download = arquivos[1].name;
     $("#resultado-titulo").textContent = `Prontinho, ${d.nome}!`;
-    $("#resultado-fralda").textContent = `Sua fralda: tamanho ${d.fralda.tamanho} (${d.fralda.nome}).`;
+    const fralda = `fralda tamanho ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
+    $("#resultado-fralda").textContent = d.tantoFaz ? `O Noah escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`;
     $("#whatsapp").href = `https://wa.me/55${d.telefone}?text=${encodeURIComponent(textoDoWhatsApp(d, location.href.split(/[?#]/)[0]))}`;
     // celular: abre o "compartilhar" com as 2 imagens (WhatsApp, salvar na galeria...)
     $("#compartilhar").hidden = !(navigator.canShare && navigator.canShare({ files: arquivos }));
@@ -208,8 +282,7 @@ function textoDoWhatsApp(d, link) {
 
   $("#outra").addEventListener("click", () => {
     resultado.hidden = true;
-    campoNome.value = "";
-    campoTelefone.value = "";
+    form.reset();
     avisar("");
     window.scrollTo({ top: 0, behavior: "smooth" });
     campoNome.focus({ preventScroll: true });

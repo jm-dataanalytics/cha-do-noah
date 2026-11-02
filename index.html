@@ -4,22 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chá do Noah</title>
-  <meta name="description" content="Coloque seu nome e seu WhatsApp e ganhe um recado do Noah e o lembrete da fralda que você vai levar.">
+  <meta name="description" content="Coloque seu nome, escolha a fralda e ganhe um recado do Noah só pra você.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Chá do Noah 💙">
-  <meta property="og:description" content="Coloque seu nome e ganhe um recado do Noah e o lembrete da sua fralda.">
+  <meta property="og:description" content="Coloque seu nome, escolha a fralda e ganhe um recado do Noah só pra você.">
   <meta property="og:url" content="https://jm-dataanalytics.github.io/cha-do-noah/">
   <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="theme-color" content="#D3E8FA">
   <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="icon" href="img/noah.ico" sizes="any">
+  <link rel="apple-touch-icon" href="img/icone-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
+  <div class="ceu" aria-hidden="true">
+    <svg class="nuvem nuvem-1" viewBox="0 0 160 76"><circle cx="36" cy="46" r="26"/><circle cx="72" cy="32" r="30"/><circle cx="112" cy="42" r="24"/><rect x="30" y="44" width="104" height="28" rx="14"/></svg>
+    <svg class="nuvem nuvem-2" viewBox="0 0 160 76"><circle cx="36" cy="46" r="26"/><circle cx="72" cy="32" r="30"/><circle cx="112" cy="42" r="24"/><rect x="30" y="44" width="104" height="28" rx="14"/></svg>
+    <svg class="nuvem nuvem-3" viewBox="0 0 160 76"><circle cx="36" cy="46" r="26"/><circle cx="72" cy="32" r="30"/><circle cx="112" cy="42" r="24"/><rect x="30" y="44" width="104" height="28" rx="14"/></svg>
+    <svg class="brilho brilho-1" viewBox="0 0 20 20"><path d="M10 0 L12.6 7.4 L20 10 L12.6 12.6 L10 20 L7.4 12.6 L0 10 L7.4 7.4 Z"/></svg>
+    <svg class="brilho brilho-2" viewBox="0 0 20 20"><path d="M10 0 L12.6 7.4 L20 10 L12.6 12.6 L10 20 L7.4 12.6 L0 10 L7.4 7.4 Z"/></svg>
+    <svg class="brilho brilho-3" viewBox="0 0 20 20"><path d="M10 0 L12.6 7.4 L20 10 L12.6 12.6 L10 20 L7.4 12.6 L0 10 L7.4 7.4 Z"/></svg>
+  </div>
+
   <main class="pagina">
     <header class="topo">
       <div class="bebe" id="bebe"></div>
@@ -27,19 +39,44 @@
       <p class="data" id="data"></p>
     </header>
 
-    <section class="painel" aria-label="Pegar meus cartões">
-      <p class="explica">Coloque seu nome e seu WhatsApp. Você ganha um <strong>recado do Noah</strong> só pra você e o <strong>lembrete da fralda</strong> que vai levar.</p>
-      <form id="form" novalidate>
-        <label for="nome">Seu nome</label>
-        <input id="nome" name="nome" type="text" autocomplete="name" maxlength="40" placeholder="Ex.: Ana Paula" required>
-        <small class="dica-campo">Pode ser do jeito que a família te chama (ex.: Tia Bia).</small>
-        <label for="telefone">Seu WhatsApp (com DDD)</label>
-        <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(21) 99999-9999" required>
-        <p class="aviso" id="aviso" role="alert"></p>
-        <button class="botao botao-principal" id="gerar" type="submit">Gerar meus cartões</button>
-      </form>
-      <p class="privacidade">🔒 Seu nome e seu telefone não saem do seu aparelho.</p>
-    </section>
+    <div class="painel-espiado">
+      <div class="espia espia-esquerda" data-bicho="urso" data-parte="cabeca" aria-hidden="true"></div>
+      <div class="espia espia-direita" data-bicho="coelho" data-parte="cabeca" aria-hidden="true"></div>
+      <section class="painel" aria-label="Pegar meus cartões">
+        <p class="explica">Coloque seu nome, seu WhatsApp e escolha a fralda. Você ganha um <strong>recado do Noah</strong> só pra você e o <strong>lembrete</strong> do que vai levar.</p>
+        <form id="form" novalidate>
+          <label class="rotulo" for="nome">Seu nome</label>
+          <input id="nome" name="nome" type="text" autocomplete="name" maxlength="40" placeholder="Ex.: Ana Paula" required>
+          <small class="dica-campo">Pode ser do jeito que a família te chama (ex.: Tia Bia).</small>
+          <label class="rotulo" for="telefone">Seu WhatsApp (com DDD)</label>
+          <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(21) 99999-9999" required>
+
+          <fieldset class="escolha">
+            <legend class="rotulo">Qual fralda você vai levar?</legend>
+            <div class="tamanhos" id="tamanhos"></div>
+            <label class="tamanho tanto-faz">
+              <input type="radio" name="tamanho" value="*">
+              <span class="chip">✨ <span id="tanto-faz-texto">Tanto faz</span></span>
+            </label>
+          </fieldset>
+
+          <label class="mimo">
+            <input type="checkbox" id="mimo">
+            <span class="chip">
+              <span class="mimo-presente" id="mimo-presente" aria-hidden="true"></span>
+              <span class="mimo-textos"><strong id="mimo-convite">Também quero levar um mimo</strong><small id="mimo-explicacao"></small></span>
+              <span class="mimo-marca" aria-hidden="true"></span>
+            </span>
+          </label>
+
+          <p class="aviso" id="aviso" role="alert"></p>
+          <button class="botao botao-principal" id="gerar" type="submit">Fazer meus cartões 💙</button>
+        </form>
+        <p class="privacidade">🔒 Seu nome e seu telefone não saem do seu aparelho.</p>
+      </section>
+      <div class="espia espia-esquerda frente" data-bicho="urso" data-parte="patas" aria-hidden="true"></div>
+      <div class="espia espia-direita frente" data-bicho="coelho" data-parte="patas" aria-hidden="true"></div>
+    </div>
 
     <section class="resultado" id="resultado" hidden>
       <h2 id="resultado-titulo" aria-live="polite">Prontinho!</h2>
@@ -50,7 +87,7 @@
           <figcaption><span>Recado do Noah</span><a class="baixar" id="baixar-recado" download>⬇️ Baixar</a></figcaption>
         </figure>
         <figure>
-          <img id="img-lembrete" alt="Cartão com o lembrete da fralda" width="1080" height="1350">
+          <img id="img-lembrete" alt="Cartão com o lembrete do que levar" width="1080" height="1350">
           <figcaption><span>Seu lembrete</span><a class="baixar" id="baixar-lembrete" download>⬇️ Baixar</a></figcaption>
         </figure>
       </div>
@@ -63,6 +100,9 @@
       </div>
     </section>
   </main>
+
+  <footer class="rodape">Feito com muito amor pro Noah <span class="rodape-coracao">♥</span></footer>
+
   <script src="config.js"></script>
   <script src="desenhos.js"></script>
   <script src="cartoes.js"></script>

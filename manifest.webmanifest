@@ -1,0 +1,15 @@
+{
+  "name": "Chá do Noah",
+  "short_name": "Chá do Noah",
+  "description": "Recado do Noah e lembrete da fralda",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EAF4FD",
+  "theme_color": "#D3E8FA",
+  "icons": [
+    { "src": "img/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icone-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "img/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

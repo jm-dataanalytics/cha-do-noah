@@ -11,10 +11,11 @@ const CARTOES = (() => {
     amarelo: "#F5C451",
     azulClaro: "#C9DFF4",
     rosa: "#F29AAE",
+    rosaForte: "#C2577A",
   };
   const fredoka = (peso, t) => `${peso} ${t}px Fredoka, Nunito, sans-serif`;
   const nunito = (peso, t) => `${peso} ${t}px Nunito, sans-serif`;
-  const CORACAO = "M20 35 C8 26 3 19 3 12.5 C3 7 7.5 3 12.5 3 C16 3 18.6 5 20 7.5 C21.4 5 24 3 27.5 3 C32.5 3 37 7 37 12.5 C37 19 32 26 20 35 Z";
+  const BRANCO_NUVEM = "rgba(255,255,255,0.95)";
 
   let fontesProntas = null;
   function carregarFontes() {
@@ -64,7 +65,7 @@ const CARTOES = (() => {
     ctx.fillRect(0, 0, largura, altura);
   }
 
-  function nuvem(ctx, x, y, s, cor) {
+  function nuvem(ctx, x, y, s, cor = BRANCO_NUVEM) {
     ctx.save();
     ctx.fillStyle = cor;
     ctx.beginPath();
@@ -91,10 +92,8 @@ const CARTOES = (() => {
 
   function coracao(ctx, x, y, tamanho, cor) {
     ctx.save();
-    ctx.translate(x - tamanho / 2, y - tamanho / 2);
-    ctx.scale(tamanho / 40, tamanho / 40);
     ctx.fillStyle = cor;
-    ctx.fill(new Path2D(CORACAO));
+    ctx.fill(new Path2D(DESENHOS.coracao(x, y, tamanho)));
     ctx.restore();
   }
 
@@ -166,23 +165,23 @@ const CARTOES = (() => {
     return tam;
   }
 
-  // cartão 1: o recado do Noah, só daquela pessoa
+  // cartão 1: o recado do Noah, só daquela pessoa (o ursinho e o coelhinho espiam por cima)
   async function recado(d) {
     await carregarFontes();
     const tela = novaTela(LARGURA, ALTURA);
     const ctx = tela.getContext("2d");
     fundo(ctx, LARGURA, ALTURA, ["#D3E8FA", "#EAF4FD", "#FFF3E3"]);
-    nuvem(ctx, -40, 232, 1.7, "rgba(255,255,255,0.95)");
+    nuvem(ctx, -40, 232, 1.7);
     nuvem(ctx, 850, 172, 1.3, "rgba(255,255,255,0.9)");
     nuvem(ctx, -60, 1342, 1.3, "rgba(255,255,255,0.9)");
     nuvem(ctx, 860, 1336, 1.4, "rgba(255,255,255,0.9)");
     estrela(ctx, 160, 72, 15, COR.amarelo);
     estrela(ctx, 930, 300, 13, COR.amarelo);
-    estrela(ctx, 112, 420, 9, COR.azulClaro);
-    estrela(ctx, 985, 452, 10, COR.amarelo);
+    estrela(ctx, 62, 436, 9, COR.azulClaro);
+    estrela(ctx, 1012, 440, 10, COR.amarelo);
     estrela(ctx, 300, 150, 12, "#FFFFFF", 4, 0.35);
     estrela(ctx, 792, 92, 11, "#FFFFFF", 4, 0.35);
-    estrela(ctx, 820, 420, 9, COR.azulClaro, 4, 0.35);
+    estrela(ctx, 734, 330, 9, COR.azulClaro, 4, 0.35);
 
     ctx.fillStyle = COR.azul;
     ctx.font = nunito(800, 30);
@@ -190,20 +189,25 @@ const CARTOES = (() => {
     espacado(ctx, CHA.titulo.toUpperCase(), LARGURA / 2, 78, 7);
     DESENHOS.desenhar(ctx, DESENHOS.bebe, LARGURA / 2 - 180, 106, 360);
 
+    DESENHOS.espiar(ctx, DESENHOS.urso, "cabeca", 215, 500, 200);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "cabeca", 870, 500, 180);
     painel(ctx, 70, 500, 940, 720, 60);
+    DESENHOS.espiar(ctx, DESENHOS.urso, "patas", 215, 500, 200);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "patas", 870, 500, 180);
+
     bloco(ctx, d.saudacao, {
-      x: 120, y: 534, largura: 840, altura: 112,
+      x: 120, y: 538, largura: 840, altura: 112,
       fonte: (t) => fredoka(700, t), maior: 76, menor: 40, entrelinha: 1.08, cor: COR.azulEscuro,
     });
     ctx.strokeStyle = "#D5E6F7";
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(500, 662);
-    ctx.lineTo(580, 662);
+    ctx.moveTo(500, 664);
+    ctx.lineTo(580, 664);
     ctx.stroke();
     bloco(ctx, d.corpo, {
-      x: 120, y: 682, largura: 840, altura: 370,
+      x: 120, y: 684, largura: 840, altura: 368,
       fonte: (t) => nunito(600, t), maior: 46, menor: 30, entrelinha: 1.45, cor: COR.texto,
     });
 
@@ -216,15 +220,13 @@ const CARTOES = (() => {
     return tela;
   }
 
-  // cartão 2: o lembrete do que a pessoa leva
+  // cartão 2: o lembrete do que a pessoa leva (fralda e, se quiser, o mimo)
   async function lembrete(d) {
     await carregarFontes();
     const tela = novaTela(LARGURA, ALTURA);
     const ctx = tela.getContext("2d");
     fundo(ctx, LARGURA, ALTURA, ["#FFF3E3", "#F3F8FD", "#D3E8FA"]);
     nuvem(ctx, 940, 40, 0.95, "rgba(255,255,255,0.9)");
-    nuvem(ctx, -50, 1340, 1.6, "rgba(255,255,255,0.95)");
-    nuvem(ctx, 840, 1334, 1.3, "rgba(255,255,255,0.9)");
     estrela(ctx, 120, 86, 14, COR.amarelo);
     estrela(ctx, 1000, 236, 12, COR.amarelo);
     estrela(ctx, 58, 600, 9, COR.azulClaro);
@@ -242,19 +244,7 @@ const CARTOES = (() => {
     });
     linha(ctx, "No dia do chá, você vai levar:", LARGURA / 2, 260, 900, (t) => nunito(600, t), 40, 28, COR.texto);
 
-    painel(ctx, 100, 296, 880, 540, 60);
-    const larguraFralda = 380;
-    const xFralda = LARGURA / 2 - larguraFralda / 2;
-    const yFralda = 310;
-    const escala = DESENHOS.desenhar(ctx, DESENHOS.fralda, xFralda, yFralda, larguraFralda);
-    const [cx, cy] = DESENHOS.fralda.centro;
-    linha(ctx, d.fralda.tamanho, xFralda + cx * escala, yFralda + cy * escala + 8, 200, (t) => fredoka(700, t),
-      d.fralda.tamanho.length > 1 ? 110 : 134, 56, COR.azul);
-    linha(ctx, `Tamanho ${d.fralda.tamanho}`, LARGURA / 2, 660, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
-    linha(ctx, d.fralda.nome, LARGURA / 2, 722, 800, (t) => nunito(800, t), 42, 28, COR.azul);
-    linha(ctx, CHA.levar, LARGURA / 2, 782, 800, (t) => nunito(600, t), 38, 26, COR.texto);
-
-    // quando e onde (o que estiver vazio no config.js não aparece); a caixa cresce conforme o que tiver
+    // ---- medidas do que vai embaixo do painel da fralda: o mimo (se tiver) e o quando/onde ----
     const xTexto = 192;
     const larguraTexto = 760;
     const itens = [{ icone: "calendario", forte: CHA.titulo, texto: d.dataExtenso }];
@@ -267,17 +257,58 @@ const CARTOES = (() => {
     }
     ctx.font = nunito(600, 29);
     const obs = CHA.observacao ? quebrar(ctx, CHA.observacao, 800).slice(0, 2) : [];
-    const alturaItens = itens.reduce((s, i) => s + i.altura, 0) + (itens.length - 1) * 14;
-    const alturaCaixa = 48 + alturaItens + (obs.length ? 14 + obs.length * 38 : 0);
-    // espaço entre o painel da fralda (até 836) e o "Guarde este lembrete" (1288)
-    const yCaixa = 862 + Math.max(0, (374 - alturaCaixa) / 2);
-    painel(ctx, 100, yCaixa, 880, alturaCaixa, 40, "rgba(255,255,255,0.82)");
-    let y = yCaixa + 24;
+    const alturaInfo = 48 + itens.reduce((s, i) => s + i.altura, 0) + (itens.length - 1) * 14 + (obs.length ? 14 + obs.length * 38 : 0);
+    ctx.font = nunito(600, 30);
+    const linhasMimo = d.mimo ? quebrar(ctx, d.mimo, 640).slice(0, 3) : [];
+    const alturaMimo = d.mimo ? Math.max(170, 30 + 44 + linhasMimo.length * 38 + 30) : 0;
+    const embaixo = alturaInfo + (d.mimo ? alturaMimo + 18 : 0);
+
+    // o painel da fralda encolhe um pouco quando tem mais coisa; embaixo fica o lugar dos bichinhos
+    const topoPainel = 296;
+    const limite = 1130;
+    const alturaPainel = Math.max(380, Math.min(540, limite - topoPainel - 26 - embaixo));
+    const sobra = limite - (topoPainel + alturaPainel + 26 + embaixo);
+    painel(ctx, 100, topoPainel, 880, alturaPainel, 60);
+    const larguraFralda = ((alturaPainel - 250) * 320) / 250;
+    const xFralda = LARGURA / 2 - larguraFralda / 2;
+    const yFralda = topoPainel + 14;
+    const escala = DESENHOS.desenhar(ctx, DESENHOS.fralda, xFralda, yFralda, larguraFralda);
+    const [cx, cy] = DESENHOS.fralda.centro;
+    linha(ctx, d.fralda.tamanho, xFralda + cx * escala, yFralda + cy * escala + 8 * escala, 0.54 * larguraFralda,
+      (t) => fredoka(700, t), Math.round((d.fralda.tamanho.length > 1 ? 110 : 134) * escala / 1.1875), 40, COR.azul);
+    const fimPainel = topoPainel + alturaPainel;
+    linha(ctx, `Tamanho ${d.fralda.tamanho}`, LARGURA / 2, fimPainel - 176, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
+    linha(ctx, d.fralda.nome, LARGURA / 2, fimPainel - 114, 800, (t) => nunito(800, t), 42, 28, COR.azul);
+    linha(ctx, CHA.levar, LARGURA / 2, fimPainel - 54, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+
+    let y = fimPainel + 26 + Math.max(0, sobra / 2);
+    if (d.mimo) {
+      painel(ctx, 100, y, 880, alturaMimo, 40, "#FFF1F5");
+      DESENHOS.desenhar(ctx, DESENHOS.presente, 126, y + (alturaMimo - 136) / 2, 136);
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      let yTexto = y + (alturaMimo - (44 + linhasMimo.length * 38)) / 2 + 20;
+      ctx.fillStyle = COR.rosaForte;
+      ctx.font = nunito(800, 34);
+      ctx.fillText("+ um mimo pro Noah", 290, yTexto);
+      yTexto += 44;
+      ctx.fillStyle = COR.texto;
+      ctx.font = nunito(600, 30);
+      for (const l of linhasMimo) {
+        ctx.fillText(l, 290, yTexto);
+        yTexto += 38;
+      }
+      y += alturaMimo + 18;
+    }
+
+    // quando e onde (o que estiver vazio no config.js não aparece)
+    painel(ctx, 100, y, 880, alturaInfo, 40, "rgba(255,255,255,0.82)");
+    let yItem = y + 24;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     for (const item of itens) {
-      DESENHOS.desenhar(ctx, DESENHOS.icones[item.icone], 132, y + 1, 42);
-      let yLinha = y + 21;
+      DESENHOS.desenhar(ctx, DESENHOS.icones[item.icone], 132, yItem + 1, 42);
+      let yLinha = yItem + 21;
       if (item.forte) {
         ctx.fillStyle = COR.azulEscuro;
         ctx.font = nunito(800, 34);
@@ -290,20 +321,35 @@ const CARTOES = (() => {
         ctx.fillText(l, xTexto, yLinha);
         yLinha += 42;
       }
-      y += item.altura + 14;
+      yItem += item.altura + 14;
     }
     if (obs.length) {
       ctx.fillStyle = COR.suave;
       ctx.font = nunito(600, 29);
       ctx.textAlign = "center";
-      let yObs = y + 12;
+      let yObs = yItem + 12;
       for (const l of obs) {
         ctx.fillText(l, LARGURA / 2, yObs);
         yObs += 38;
       }
     }
+    const fimConteudo = y + alturaInfo;
+
+    // embaixo: o coelhinho e o elefantinho espiando de trás das nuvens (só se couber sem encostar no texto)
+    const comBichinhos = fimConteudo <= 1136;
+    if (comBichinhos) {
+      DESENHOS.espiar(ctx, DESENHOS.coelho, "cabeca", 128, 1268, 150);
+      DESENHOS.espiar(ctx, DESENHOS.elefante, "cabeca", 958, 1266, 170);
+    }
+    nuvem(ctx, -50, 1340, 1.6);
+    nuvem(ctx, 840, 1334, 1.3);
+    if (comBichinhos) {
+      DESENHOS.espiar(ctx, DESENHOS.coelho, "patas", 128, 1268, 150);
+      DESENHOS.espiar(ctx, DESENHOS.elefante, "patas", 958, 1266, 170);
+    }
 
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = COR.azul;
     ctx.font = nunito(800, 30);
     const fim = "Guarde este lembrete";
@@ -318,31 +364,41 @@ const CARTOES = (() => {
     const tela = novaTela(1200, 630);
     const ctx = tela.getContext("2d");
     fundo(ctx, 1200, 630, ["#D3E8FA", "#EAF4FD", "#FFF3E3"]);
-    nuvem(ctx, -30, 150, 1.4, "rgba(255,255,255,0.95)");
-    nuvem(ctx, 1010, 110, 1.1, "rgba(255,255,255,0.9)");
-    nuvem(ctx, 760, 640, 1.5, "rgba(255,255,255,0.9)");
-    estrela(ctx, 520, 70, 14, COR.amarelo);
-    estrela(ctx, 1130, 300, 12, COR.amarelo);
+    nuvem(ctx, -30, 150, 1.4);
+    nuvem(ctx, 1010, 100, 1.1, "rgba(255,255,255,0.9)");
+    estrela(ctx, 520, 64, 14, COR.amarelo);
+    estrela(ctx, 1140, 260, 12, COR.amarelo);
     estrela(ctx, 70, 520, 10, COR.azulClaro);
     estrela(ctx, 440, 120, 10, "#FFFFFF", 4, 0.35);
     DESENHOS.desenhar(ctx, DESENHOS.bebe, 60, 96, 400);
 
     const xTexto = 815;
-    linha(ctx, "VEM AÍ O", xTexto, 176, 640, (t) => nunito(800, t), 30, 20, COR.azul);
-    linha(ctx, CHA.titulo, xTexto, 264, 660, (t) => fredoka(700, t), 104, 60, COR.azulEscuro);
-    linha(ctx, d.dataExtenso, xTexto, 346, 660, (t) => nunito(700, t), 34, 22, COR.texto);
+    linha(ctx, "VEM AÍ O", xTexto, 150, 640, (t) => nunito(800, t), 30, 20, COR.azul);
+    linha(ctx, CHA.titulo, xTexto, 236, 660, (t) => fredoka(700, t), 104, 60, COR.azulEscuro);
+    linha(ctx, d.dataExtenso, xTexto, 316, 660, (t) => nunito(700, t), 34, 22, COR.texto);
     ctx.save();
     ctx.shadowColor = "rgba(79, 134, 198, 0.35)";
     ctx.shadowBlur = 24;
     ctx.shadowOffsetY = 8;
     ctx.fillStyle = COR.azul;
-    retangulo(ctx, xTexto - 280, 404, 560, 92, 46);
+    retangulo(ctx, xTexto - 280, 364, 560, 88, 44);
     ctx.fill();
     ctx.restore();
     const convite = "Toque e pegue seu cartão";
-    const tamConvite = linha(ctx, convite, xTexto - 20, 451, 460, (t) => fredoka(600, t), 38, 26, "#FFFFFF");
+    const tamConvite = linha(ctx, convite, xTexto - 20, 409, 460, (t) => fredoka(600, t), 38, 26, "#FFFFFF");
     ctx.font = fredoka(600, tamConvite);
-    coracao(ctx, xTexto - 20 + ctx.measureText(convite).width / 2 + 30, 453, 30, "#FFFFFF");
+    coracao(ctx, xTexto - 20 + ctx.measureText(convite).width / 2 + 30, 410, 30, "#FFFFFF");
+
+    // os bichinhos espiando de trás das nuvens, embaixo
+    DESENHOS.espiar(ctx, DESENHOS.urso, "cabeca", 640, 600, 150);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "cabeca", 820, 600, 130);
+    DESENHOS.espiar(ctx, DESENHOS.elefante, "cabeca", 1010, 600, 160);
+    nuvem(ctx, 520, 660, 1.5);
+    nuvem(ctx, 760, 668, 1.4);
+    nuvem(ctx, 960, 660, 1.6);
+    DESENHOS.espiar(ctx, DESENHOS.urso, "patas", 640, 600, 150);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "patas", 820, 600, 130);
+    DESENHOS.espiar(ctx, DESENHOS.elefante, "patas", 1010, 600, 160);
     return tela;
   }
 
