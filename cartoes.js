@@ -165,58 +165,61 @@ const CARTOES = (() => {
     return tam;
   }
 
-  // cartão 1: o recado do Noah, só daquela pessoa (o ursinho e o coelhinho espiam por cima)
+  // cartão 1: o recado do Noah, só daquela pessoa (o ursinho e o coelhinho espiam por cima).
+  // Mais alto que o lembrete (1080 x 1620): as mensagens são cartinhas de verdade (jm: "pode e deve ser maior").
+  const ALTURA_RECADO = 1620;
   async function recado(d) {
     await carregarFontes();
-    const tela = novaTela(LARGURA, ALTURA);
+    const tela = novaTela(LARGURA, ALTURA_RECADO);
     const ctx = tela.getContext("2d");
-    fundo(ctx, LARGURA, ALTURA, ["#D3E8FA", "#EAF4FD", "#FFF3E3"]);
-    nuvem(ctx, -40, 232, 1.7);
-    nuvem(ctx, 850, 172, 1.3, "rgba(255,255,255,0.9)");
-    nuvem(ctx, -60, 1342, 1.3, "rgba(255,255,255,0.9)");
-    nuvem(ctx, 860, 1336, 1.4, "rgba(255,255,255,0.9)");
+    fundo(ctx, LARGURA, ALTURA_RECADO, ["#D3E8FA", "#EAF4FD", "#FFF3E3"]);
+    nuvem(ctx, -40, 222, 1.7);
+    nuvem(ctx, 850, 166, 1.3, "rgba(255,255,255,0.9)");
+    nuvem(ctx, -60, 1612, 1.3, "rgba(255,255,255,0.9)");
+    nuvem(ctx, 860, 1606, 1.4, "rgba(255,255,255,0.9)");
     estrela(ctx, 160, 72, 15, COR.amarelo);
-    estrela(ctx, 930, 300, 13, COR.amarelo);
-    estrela(ctx, 62, 436, 9, COR.azulClaro);
-    estrela(ctx, 1012, 440, 10, COR.amarelo);
-    estrela(ctx, 300, 150, 12, "#FFFFFF", 4, 0.35);
-    estrela(ctx, 792, 92, 11, "#FFFFFF", 4, 0.35);
-    estrela(ctx, 734, 330, 9, COR.azulClaro, 4, 0.35);
+    estrela(ctx, 930, 290, 13, COR.amarelo);
+    estrela(ctx, 62, 410, 9, COR.azulClaro);
+    estrela(ctx, 1012, 410, 10, COR.amarelo);
+    estrela(ctx, 300, 146, 12, "#FFFFFF", 4, 0.35);
+    estrela(ctx, 792, 90, 11, "#FFFFFF", 4, 0.35);
+    estrela(ctx, 734, 318, 9, COR.azulClaro, 4, 0.35);
 
     ctx.fillStyle = COR.azul;
     ctx.font = nunito(800, 30);
     ctx.textBaseline = "middle";
-    espacado(ctx, CHA.titulo.toUpperCase(), LARGURA / 2, 78, 7);
-    DESENHOS.desenhar(ctx, DESENHOS.bebe, LARGURA / 2 - 180, 106, 360);
+    espacado(ctx, CHA.titulo.toUpperCase(), LARGURA / 2, 76, 7);
+    DESENHOS.desenhar(ctx, DESENHOS.bebe, LARGURA / 2 - 160, 102, 320);
 
-    DESENHOS.espiar(ctx, DESENHOS.urso, "cabeca", 215, 500, 200);
-    DESENHOS.espiar(ctx, DESENHOS.coelho, "cabeca", 870, 500, 180);
-    painel(ctx, 70, 500, 940, 720, 60);
-    DESENHOS.espiar(ctx, DESENHOS.urso, "patas", 215, 500, 200);
-    DESENHOS.espiar(ctx, DESENHOS.coelho, "patas", 870, 500, 180);
+    const topo = 456;
+    DESENHOS.espiar(ctx, DESENHOS.urso, "cabeca", 215, topo, 190);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "cabeca", 870, topo, 170);
+    painel(ctx, 60, topo, 960, 1040, 60);
+    DESENHOS.espiar(ctx, DESENHOS.urso, "patas", 215, topo, 190);
+    DESENHOS.espiar(ctx, DESENHOS.coelho, "patas", 870, topo, 170);
 
     bloco(ctx, d.saudacao, {
-      x: 120, y: 538, largura: 840, altura: 112,
-      fonte: (t) => fredoka(700, t), maior: 76, menor: 40, entrelinha: 1.08, cor: COR.azulEscuro,
+      x: 110, y: topo + 36, largura: 860, altura: 112,
+      fonte: (t) => fredoka(700, t), maior: 72, menor: 40, entrelinha: 1.08, cor: COR.azulEscuro,
     });
     ctx.strokeStyle = "#D5E6F7";
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(500, 664);
-    ctx.lineTo(580, 664);
+    ctx.moveTo(500, topo + 166);
+    ctx.lineTo(580, topo + 166);
     ctx.stroke();
     bloco(ctx, d.corpo, {
-      x: 120, y: 684, largura: 840, altura: 368,
-      fonte: (t) => nunito(600, t), maior: 54, menor: 30, entrelinha: 1.45, cor: COR.texto,
+      x: 110, y: topo + 190, largura: 860, altura: 690,
+      fonte: (t) => nunito(600, t), maior: 50, menor: 30, entrelinha: 1.45, cor: COR.texto,
     });
 
-    linha(ctx, CHA.assinatura, LARGURA / 2, 1094, 800, (t) => nunito(600, t), 36, 24, COR.suave);
-    const tamNome = linha(ctx, CHA.bebe, LARGURA / 2 - 24, 1156, 700, (t) => fredoka(700, t), 70, 40, COR.azul);
+    linha(ctx, CHA.assinatura, LARGURA / 2, topo + 920, 800, (t) => nunito(600, t), 36, 24, COR.suave);
+    const tamNome = linha(ctx, CHA.bebe, LARGURA / 2 - 24, topo + 982, 700, (t) => fredoka(700, t), 70, 40, COR.azul);
     ctx.font = fredoka(700, tamNome);
-    coracao(ctx, LARGURA / 2 - 24 + ctx.measureText(CHA.bebe).width / 2 + 36, 1158, 46, COR.rosa);
+    coracao(ctx, LARGURA / 2 - 24 + ctx.measureText(CHA.bebe).width / 2 + 36, topo + 984, 46, COR.rosa);
 
-    linha(ctx, d.dataExtenso, LARGURA / 2, 1284, 940, (t) => nunito(700, t), 32, 24, COR.suave);
+    linha(ctx, d.dataExtenso, LARGURA / 2, 1556, 940, (t) => nunito(700, t), 32, 24, COR.suave);
     return tela;
   }
 
