@@ -10,6 +10,7 @@
   --rosa: #e9849f;
   --rosa-claro: #fff1f5;
   --rosa-borda: #f4b6c6;
+  --rosa-forte: #c2577a;
   --verde-whatsapp: #1f9d55;
   --aviso: #b5462f;
   color-scheme: light;
@@ -170,12 +171,59 @@ h1 {
   box-shadow: 0 12px 32px rgba(36, 57, 92, 0.1);
 }
 
-.explica {
-  margin: 0 0 4px;
+/* a fala do Noah no topo do formulário: um balãozinho apontando pro bebê lá em cima */
+.fala-do-noah {
+  position: relative;
+  margin: 0 0 6px;
+  padding: 14px 16px;
   line-height: 1.5;
+  text-align: center;
+  color: var(--azul-escuro);
+  background: var(--azul-marcado);
+  border-radius: 18px;
 }
 
-.explica strong { color: var(--azul-escuro); }
+.fala-do-noah::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  background: var(--azul-marcado);
+  border-radius: 3px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.fala-do-noah p {
+  position: relative;
+  margin: 0;
+}
+
+.fala-oi {
+  margin-bottom: 4px !important;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.fala {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--texto);
+}
+
+.fala-mamae { margin: 18px 0 10px; }
+
+.previa-oi {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--azul-forte);
+}
+
+.previa-oi:empty { display: none; }
 
 .rotulo {
   display: block;
@@ -232,15 +280,37 @@ input[type="tel"]:focus {
   padding-top: 6px;
 }
 
+.chamados {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chamado .chip {
+  min-height: 46px;
+  padding: 8px 4px;
+  font-weight: 800;
+  color: var(--azul-escuro);
+}
+
+.chamado input:checked + .chip {
+  background: var(--rosa-claro);
+  border-color: var(--rosa-borda);
+  box-shadow: 0 0 0 3px rgba(233, 132, 159, 0.18);
+  color: var(--rosa-forte, #c2577a);
+}
+
 .tamanho,
-.mimo {
+.mimo,
+.chamado {
   position: relative;
   display: block;
   cursor: pointer;
 }
 
 .tamanho input,
-.mimo input {
+.mimo input,
+.chamado input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
@@ -301,16 +371,74 @@ input[type="tel"]:focus {
 
 .tamanho input:checked + .chip .tamanho-letra { color: var(--azul-forte); }
 
-.tanto-faz { margin-top: 10px; }
-
-.tanto-faz .chip {
-  flex-direction: row;
-  gap: 6px;
-  min-height: 50px;
-  padding: 10px 14px;
+.faltam {
+  font-size: 0.72rem;
   font-weight: 800;
-  color: var(--azul-escuro);
+  color: var(--azul-forte);
 }
+
+/* tamanho que já completou na proporção: fica apagadinho e não dá pra escolher */
+.tamanho.completo { cursor: not-allowed; }
+
+.tamanho.completo .chip {
+  background: #f3f6fa;
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.tamanho.completo .selo {
+  color: var(--suave);
+  background: #e6edf5;
+}
+
+/* "Uma ajudinha do Noah": título e falas centralizados, como um bilhetinho */
+.titulo-ajudinha {
+  width: 100%;
+  margin-bottom: 8px !important;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  text-align: center;
+  color: var(--azul-forte);
+}
+
+#escolha-fralda .fala { text-align: center; }
+
+/* "Pode escolher por mim, mamãe!": caixinha azul-clara com o botão redondo */
+.mamae-escolhe .chip {
+  gap: 10px;
+  min-height: 0;
+  padding: 14px 12px 12px;
+  background: var(--azul-marcado);
+  border-color: transparent;
+}
+
+.pedido-mamae {
+  font-weight: 700;
+  color: var(--azul-forte);
+}
+
+.botao-mamae {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: #fff;
+  background: #7d95b6;
+  border-radius: 999px;
+  transition: background-color 0.15s;
+}
+
+.mamae-escolhe input:checked + .chip {
+  background: var(--azul-marcado);
+  border-color: var(--azul);
+}
+
+.mamae-escolhe input:checked + .chip .botao-mamae { background: var(--azul); }
+
+.mamae-escolhe input:checked + .chip .botao-mamae::before { content: "✓ "; }
 
 /* mimo (opcional) */
 .mimo { margin-top: 14px; }
@@ -479,23 +607,17 @@ input[type="tel"]:focus {
   text-align: center;
 }
 
-.cartoes {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
-  max-width: 520px;
+/* o recado é o principal (grande); o lembrete fica pequenininho embaixo */
+.cartao-principal {
+  max-width: 440px;
   margin: 0 auto;
-}
-
-figure {
-  margin: 0;
   padding: 10px;
   background: #fff;
   border-radius: 22px;
   box-shadow: 0 10px 26px rgba(36, 57, 92, 0.1);
 }
 
-figure img {
+.cartao-principal img {
   display: block;
   width: 100%;
   height: auto;
@@ -503,14 +625,49 @@ figure img {
   background: var(--azul-claro);
 }
 
-figcaption {
+.lembrete-pequeno {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 6px 4px;
-  font-weight: 800;
+  gap: 14px;
+  max-width: 440px;
+  margin: 18px auto 0;
+  padding: 10px 14px 10px 10px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--borda);
+  border-radius: 18px;
+}
+
+.lembrete-pequeno img {
+  flex: none;
+  width: 76px;
+  height: auto;
+  border-radius: 10px;
+  background: var(--azul-claro);
+}
+
+.lembrete-textos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.92rem;
+  color: var(--suave);
+}
+
+.lembrete-textos strong { color: var(--azul-escuro); }
+
+.botao-claro {
   color: var(--azul-escuro);
+  background: var(--azul-claro);
+  font-size: 1.05rem;
+}
+
+.aviso-suave {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--suave);
 }
 
 .baixar {
@@ -570,13 +727,6 @@ figcaption {
     margin-top: 112px;
   }
   .painel { padding: 28px 28px 24px; }
-}
-
-@media (min-width: 760px) {
-  .cartoes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 900px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

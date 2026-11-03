@@ -31,8 +31,8 @@ const DESENHOS = (() => {
       `C${x(32.5)} ${y(3)} ${x(37)} ${y(7)} ${x(37)} ${y(12.5)}C${x(37)} ${y(19)} ${x(32)} ${y(26)} ${x(20)} ${y(35)}Z`;
   };
 
-  const PELE = "#FFDCC6";
-  const PELE_FUNDA = "#F4AE95";
+  const PELE = "#F3C7A3"; // um pouquinho moreno, ainda clarinho (jm, 02/11)
+  const PELE_FUNDA = "#DDA083";
   const CABELO = "#8A5433";
   const BLUSA = "#5B93D3";
   const AZUL = "#4F86C6";
@@ -96,14 +96,14 @@ const DESENHOS = (() => {
       TRONCO,
       { d: coracao(200, 296, 30), fill: "#FFFFFF", alpha: 0.9 },
       // pernas cruzadas e pezinhos
-      { d: elipse(160, 378, 50, 24, 16), fill: PELE, stroke: "#F6C7AE", width: 3 },
-      { d: elipse(240, 378, 50, 24, -16), fill: PELE, stroke: "#F6C7AE", width: 3 },
-      { d: elipse(186, 393, 21, 14, 8), fill: "#FFD3BD", stroke: "#F3BBA0", width: 3 },
-      { d: elipse(215, 393, 21, 14, -8), fill: "#FFD3BD", stroke: "#F3BBA0", width: 3 },
-      { d: circulo(170, 386, 3.4), fill: "#F3BBA0" },
-      { d: circulo(169, 394, 3), fill: "#F3BBA0" },
-      { d: circulo(231, 386, 3.4), fill: "#F3BBA0" },
-      { d: circulo(232, 394, 3), fill: "#F3BBA0" },
+      { d: elipse(160, 378, 50, 24, 16), fill: PELE, stroke: "#E3B08C", width: 3 },
+      { d: elipse(240, 378, 50, 24, -16), fill: PELE, stroke: "#E3B08C", width: 3 },
+      { d: elipse(186, 393, 21, 14, 8), fill: "#EEBF99", stroke: "#DCA683", width: 3 },
+      { d: elipse(215, 393, 21, 14, -8), fill: "#EEBF99", stroke: "#DCA683", width: 3 },
+      { d: circulo(170, 386, 3.4), fill: "#DCA683" },
+      { d: circulo(169, 394, 3), fill: "#DCA683" },
+      { d: circulo(231, 386, 3.4), fill: "#DCA683" },
+      { d: circulo(232, 394, 3), fill: "#DCA683" },
       ...ROSTO,
     ],
   };

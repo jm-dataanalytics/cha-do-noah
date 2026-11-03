@@ -4,23 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chá do Noah</title>
-  <meta name="description" content="Coloque seu nome, escolha a fralda e ganhe um recado do Noah só pra você.">
+  <meta name="description" content="Oi, titia! Oi, titio! Escolha uma fraldinha pro Noah e ganhe um recado dele só pra você.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Chá do Noah 💙">
-  <meta property="og:description" content="Coloque seu nome, escolha a fralda e ganhe um recado do Noah só pra você.">
+  <meta property="og:description" content="Oi, titia! Oi, titio! Escolha uma fraldinha pro Noah e ganhe um recado dele só pra você.">
   <meta property="og:url" content="https://jm-dataanalytics.github.io/cha-do-noah/">
-  <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png">
+  <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png?v=4">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="theme-color" content="#D3E8FA">
   <link rel="icon" href="img/icone.svg" type="image/svg+xml">
   <link rel="icon" href="img/noah.ico" sizes="any">
   <link rel="apple-touch-icon" href="img/icone-180.png">
-  <link rel="manifest" href="manifest.webmanifest?v=3">
+  <link rel="manifest" href="manifest.webmanifest?v=4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
-  <link rel="stylesheet" href="estilo.css?v=3">
+  <!-- o ?v= muda a cada versão: assim o navegador nunca mistura arquivo novo com velho -->
+  <link rel="stylesheet" href="estilo.css?v=4">
 </head>
 <body>
   <div class="ceu" aria-hidden="true">
@@ -43,20 +44,35 @@
       <div class="espia espia-esquerda" data-bicho="urso" data-parte="cabeca" aria-hidden="true"></div>
       <div class="espia espia-direita" data-bicho="coelho" data-parte="cabeca" aria-hidden="true"></div>
       <section class="painel" aria-label="Pegar meus cartões">
-        <p class="explica">Coloque seu nome, seu WhatsApp e escolha a fralda. Você ganha um <strong>recado do Noah</strong> só pra você e o <strong>lembrete</strong> do que vai levar.</p>
+        <div class="fala-do-noah">
+          <p class="fala-oi" id="convite-oi"></p>
+          <p id="convite-barriguinha"></p>
+        </div>
         <form id="form" novalidate>
           <label class="rotulo" for="nome">Seu nome</label>
           <input id="nome" name="nome" type="text" autocomplete="name" maxlength="40" placeholder="Ex.: Ana Paula" required>
-          <small class="dica-campo">Pode ser do jeito que a família te chama (ex.: Tia Bia).</small>
+          <small class="dica-campo">Do jeito que a família te chama.</small>
+
+          <fieldset class="escolha">
+            <legend class="rotulo">O Noah vai te chamar de:</legend>
+            <div class="chamados" id="chamados"></div>
+            <p class="previa-oi" id="previa-oi" aria-live="polite"></p>
+          </fieldset>
+
           <label class="rotulo" for="telefone">Seu WhatsApp (com DDD)</label>
           <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(21) 99999-9999" required>
 
-          <fieldset class="escolha">
-            <legend class="rotulo">Qual fralda você vai levar?</legend>
+          <fieldset class="escolha" id="escolha-fralda" tabindex="-1">
+            <legend class="rotulo titulo-ajudinha" id="titulo-ajudinha">Uma ajudinha do Noah 💙</legend>
+            <p class="fala" id="convite-ajudinha"></p>
             <div class="tamanhos" id="tamanhos"></div>
-            <label class="tamanho tanto-faz">
+            <p class="fala fala-mamae" id="convite-mamae"></p>
+            <label class="tamanho mamae-escolhe">
               <input type="radio" name="tamanho" value="*">
-              <span class="chip">✨ <span id="tanto-faz-texto">Tanto faz</span></span>
+              <span class="chip">
+                <span class="pedido-mamae" id="pedido-mamae"></span>
+                <span class="botao-mamae" id="botao-mamae"></span>
+              </span>
             </label>
           </fieldset>
 
@@ -72,7 +88,7 @@
           <p class="aviso" id="aviso" role="alert"></p>
           <button class="botao botao-principal" id="gerar" type="submit">Fazer meus cartões 💙</button>
         </form>
-        <p class="privacidade">🔒 Seu nome e seu telefone não saem do seu aparelho.</p>
+        <p class="privacidade" id="privacidade"></p>
       </section>
       <div class="espia espia-esquerda frente" data-bicho="urso" data-parte="patas" aria-hidden="true"></div>
       <div class="espia espia-direita frente" data-bicho="coelho" data-parte="patas" aria-hidden="true"></div>
@@ -81,31 +97,33 @@
     <section class="resultado" id="resultado" hidden>
       <h2 id="resultado-titulo" aria-live="polite">Prontinho!</h2>
       <p class="fralda" id="resultado-fralda"></p>
-      <div class="cartoes">
-        <figure>
-          <img id="img-recado" alt="Cartão com o recado do Noah" width="1080" height="1350">
-          <figcaption><span>Recado do Noah</span><a class="baixar" id="baixar-recado" download>⬇️ Baixar</a></figcaption>
-        </figure>
-        <figure>
-          <img id="img-lembrete" alt="Cartão com o lembrete do que levar" width="1080" height="1350">
-          <figcaption><span>Seu lembrete</span><a class="baixar" id="baixar-lembrete" download>⬇️ Baixar</a></figcaption>
-        </figure>
-      </div>
+      <figure class="cartao-principal">
+        <img id="img-recado" alt="Cartão com o recado do Noah" width="1080" height="1350">
+      </figure>
       <div class="acoes">
-        <button class="botao botao-principal" id="compartilhar" type="button" hidden>📲 Salvar ou mandar os cartões</button>
-        <a class="botao botao-whatsapp" id="whatsapp" target="_blank" rel="noopener">💬 Mandar o lembrete pro meu WhatsApp</a>
-        <p class="aviso" id="aviso-resultado" role="alert"></p>
-        <p class="dica">No celular, também dá pra tocar e segurar no cartão pra salvar na galeria.</p>
-        <button class="link" id="outra" type="button">Fazer pra outra pessoa</button>
+        <button class="botao botao-whatsapp" id="compartilhar" type="button">💚 Mandar os cartões pro WhatsApp</button>
+        <p class="aviso aviso-suave" id="aviso-resultado" role="status"></p>
+        <a class="botao botao-claro" id="baixar-recado" download>⬇️ Baixar o cartão</a>
       </div>
+      <div class="lembrete-pequeno">
+        <img id="img-lembrete" alt="Cartão do lembrete" width="1080" height="1350">
+        <div class="lembrete-textos">
+          <strong>Seu lembrete</strong>
+          <span id="lembrete-resumo"></span>
+          <a class="baixar" id="baixar-lembrete" download>⬇️ Baixar o lembrete</a>
+        </div>
+      </div>
+      <p class="dica">No celular, também dá pra tocar e segurar no cartão pra salvar na galeria.</p>
+      <button class="link" id="outra" type="button">Fazer pra outra pessoa</button>
     </section>
   </main>
 
   <footer class="rodape">Feito com muito amor pro Noah <span class="rodape-coracao">♥</span></footer>
 
-  <script src="config.js?v=3"></script>
-  <script src="desenhos.js?v=3"></script>
-  <script src="cartoes.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="config.js?v=4"></script>
+  <script src="nomes.js?v=4"></script>
+  <script src="desenhos.js?v=4"></script>
+  <script src="cartoes.js?v=4"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

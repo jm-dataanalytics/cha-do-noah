@@ -208,7 +208,7 @@ const CARTOES = (() => {
     ctx.stroke();
     bloco(ctx, d.corpo, {
       x: 120, y: 684, largura: 840, altura: 368,
-      fonte: (t) => nunito(600, t), maior: 46, menor: 30, entrelinha: 1.45, cor: COR.texto,
+      fonte: (t) => nunito(600, t), maior: 54, menor: 30, entrelinha: 1.45, cor: COR.texto,
     });
 
     linha(ctx, CHA.assinatura, LARGURA / 2, 1094, 800, (t) => nunito(600, t), 36, 24, COR.suave);
@@ -238,9 +238,10 @@ const CARTOES = (() => {
     ctx.font = nunito(800, 30);
     ctx.textBaseline = "middle";
     espacado(ctx, "LEMBRETE", LARGURA / 2, 72, 9);
+    // o lembrete é mais discreto que o recado (o recado é o principal)
     bloco(ctx, `Não esquece, ${d.nome}!`, {
       x: 90, y: 100, largura: 900, altura: 124,
-      fonte: (t) => fredoka(700, t), maior: 80, menor: 44, entrelinha: 1.1, cor: COR.azulEscuro,
+      fonte: (t) => fredoka(600, t), maior: 62, menor: 40, entrelinha: 1.1, cor: COR.texto,
     });
     linha(ctx, "No dia do chá, você vai levar:", LARGURA / 2, 260, 900, (t) => nunito(600, t), 40, 28, COR.texto);
 

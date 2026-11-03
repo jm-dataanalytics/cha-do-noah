@@ -2,35 +2,40 @@
 
 **Link:** https://jm-dataanalytics.github.io/cha-do-noah/
 
-A pessoa coloca o nome e o WhatsApp, escolhe a fralda que vai levar (e, se quiser, marca que vai levar um mimo) e ganha 2 cartões em PNG:
+O Noah, ainda na barriguinha da mamãe, conversa com quem abre o link:
 
-1. **um recado do Noah só pra ela**, sempre com o nome dela;
-2. **o lembrete do que ela vai levar**: o tamanho da fralda, o mimo (com um recadinho especial), a data e, se estiverem preenchidos, o horário e o endereço.
+1. a pessoa coloca o nome e o WhatsApp, e o site já sabe se o Noah vai chamar de **titia** ou **titio** (dá pra trocar, e tem **vovó** e **vovô**);
+2. escolhe uma fraldinha, ou toca em **"Deixo a mamãe escolher"**;
+3. se quiser, marca que vai levar um **mimo**;
+4. ganha 2 cartões em PNG:
+   - **o recado do Noah**, só dela ("Oi, titia Ana!"), que é o principal;
+   - **o lembrete**, mais discreto: a fralda, o mimo e a data.
 
-No celular, o botão "Salvar ou mandar os cartões" abre o compartilhar com as 2 imagens: WhatsApp, salvar na galeria e outros. Também tem o "Baixar" embaixo de cada cartão e o botão que manda o lembrete em texto pro WhatsApp da própria pessoa.
+O botão **"Mandar os cartões pro WhatsApp"** manda as 2 fotos (no celular, pelo compartilhar).
+
+## A planilha (a memória do site)
+
+Com a planilha do Google ligada (`CHA.planilha` no `config.js`):
+
+- as **100 mensagens** nunca se repetem;
+- as fraldas seguem a **proporção das 50**: o tamanho que completa fica apagado, e "a mamãe escolhe" pega o que mais está faltando;
+- a página **`pessoal.html`** (com senha) mostra quem preencheu, a contagem e as mensagens usadas, e tem o botão **Limpar o pessoal**.
+
+Sem a planilha, o site funciona sozinho, mas não conta as fraldas nem garante mensagem única.
 
 ## Mudar alguma coisa
 
-Tudo o que dá pra mudar fica em **`config.js`**: data, horário, endereço, tamanhos das fraldas, os recados e as mensagens do mimo.
-
-## A fralda
-
-A pessoa escolhe o tamanho. Os tamanhos de que a família mais precisa ganham o selinho "mais pedido".
-
-Quem toca em "Tanto faz" recebe um tamanho sorteado na proporção da lista: 50 pacotes viram 50 "vagas", e o telefone da pessoa escolhe uma. A mesma pessoa sempre tira o mesmo tamanho.
-
-## Privacidade
-
-O nome e o telefone não vão pra servidor nenhum: os cartões são desenhados no próprio aparelho da pessoa. O site só lembra o que ela preencheu, no navegador dela, pra ela não precisar digitar de novo.
+Tudo fica em **`config.js`**: data, horário, endereço, fraldas, as falas do Noah, as 100 mensagens e os recadinhos do mimo.
 
 ## Arquivos
 
 | Arquivo | O que é |
 |---|---|
-| `config.js` | textos, data, tamanhos e mensagens (é o que se edita) |
+| `config.js` | textos, data, fraldas e mensagens (é o que se edita) |
 | `index.html`, `estilo.css` | a página |
-| `app.js` | formulário, escolha da fralda e do recado |
+| `app.js` | formulário, titia/titio, fraldas, planilha e WhatsApp |
+| `nomes.js` | adivinha titia ou titio pelo nome |
 | `cartoes.js` | desenha os 2 cartões PNG (1080 x 1350) e a imagem do link |
-| `desenhos.js` | o Noah, os bichinhos (ursinho, coelhinho, elefantinho), a fralda, o presente e os ícones, desenhados em código |
-| `img/` | a imagem do link no WhatsApp (`previa.png`) e os ícones |
-| `manifest.webmanifest` | o ícone de quando alguém salva o site na tela inicial do celular |
+| `desenhos.js` | o Noah, os bichinhos, a fralda, o presente e os ícones, desenhados em código |
+| `pessoal.html`, `pessoal.js` | a página do pessoal (só pros pais) |
+| `img/`, `manifest.webmanifest` | a imagem do link no WhatsApp e os ícones |

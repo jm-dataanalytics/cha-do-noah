@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>O pessoal do Chá do Noah</title>
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="estilo.css?v=4">
+  <style>
+    .pagina-pessoal { max-width: 640px; }
+    .topo-pessoal { text-align: center; margin-bottom: 18px; }
+    .topo-pessoal .rostinho { width: 84px; margin: 0 auto 6px; }
+    .topo-pessoal .rostinho svg { display: block; width: 100%; height: auto; }
+    .topo-pessoal h1 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+    .pagina-pessoal .painel { margin-bottom: 18px; }
+    .pagina-pessoal h2 { margin: 0 0 12px; font-family: "Fredoka", "Nunito", sans-serif; font-size: 1.35rem; color: var(--azul-escuro); }
+    .contagem { display: grid; gap: 10px; }
+    .barra { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-weight: 800; color: var(--azul-escuro); }
+    .barra-fundo { height: 14px; background: var(--azul-marcado); border-radius: 999px; overflow: hidden; }
+    .barra-cheia { height: 100%; background: var(--azul); border-radius: 999px; }
+    .barra.completa .barra-cheia { background: #6cc08b; }
+    .barra small { font-weight: 700; color: var(--suave); white-space: nowrap; }
+    .total { margin: 14px 0 0; font-weight: 800; }
+    .lista { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .pessoa { padding: 12px 14px; background: #fbfdff; border: 1px solid var(--borda); border-radius: 14px; }
+    .pessoa strong { color: var(--azul-escuro); }
+    .pessoa .detalhes { display: block; margin-top: 4px; font-size: 0.9rem; color: var(--suave); overflow-wrap: anywhere; }
+    .vazio { margin: 0; color: var(--suave); }
+    .mensagens { margin: 0; padding-left: 1.6em; display: grid; gap: 10px; }
+    .mensagens li { line-height: 1.45; }
+    .mensagens li b { color: var(--azul-escuro); }
+    .mensagens .usada { display: block; font-size: 0.85rem; font-weight: 800; color: #3d9a63; }
+    .botao-perigo { color: #fff; background: #c2453a; box-shadow: none; }
+    .botao-perigo:hover { background: #a63a31; }
+    .ok { margin: 12px 0 0; font-weight: 800; color: #3d9a63; }
+    .ok:empty { display: none; }
+  </style>
+</head>
+<body>
+  <main class="pagina pagina-pessoal">
+    <header class="topo-pessoal">
+      <div class="rostinho" id="rostinho"></div>
+      <h1>O pessoal do Chá do Noah</h1>
+      <p class="data" id="data"></p>
+    </header>
+
+    <section class="painel" id="entrar">
+      <p class="vazio" id="sem-planilha" hidden>A planilha ainda não está ligada. Quando estiver, aqui aparece quem preencheu, a contagem das fraldas e o botão de limpar.</p>
+      <form id="form-pin">
+        <label class="rotulo" for="pin">Senha</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password">
+        <p class="aviso" id="aviso-pin" role="alert"></p>
+        <button class="botao botao-principal" type="submit">Ver o pessoal</button>
+      </form>
+    </section>
+
+    <div id="painel-pessoal" hidden>
+      <section class="painel">
+        <h2>Fraldas</h2>
+        <div class="contagem" id="contagem"></div>
+        <p class="total" id="total"></p>
+      </section>
+      <section class="painel">
+        <h2>Quem já preencheu</h2>
+        <ul class="lista" id="lista"></ul>
+      </section>
+    </div>
+
+    <section class="painel">
+      <h2>As mensagens do Noah</h2>
+      <ol class="mensagens" id="mensagens"></ol>
+    </section>
+
+    <section class="painel" id="zerar" hidden>
+      <h2>Zerar pra valer</h2>
+      <p class="fala">Pra quando for mandar o link de verdade: quem preencheu até agora (os testes) vai pra aba "Arquivo" da planilha, nada se perde, e a contagem e as mensagens começam do zero.</p>
+      <button class="botao botao-perigo" id="limpar" type="button">🧹 Limpar o pessoal</button>
+      <p class="ok" id="aviso-limpar" role="status"></p>
+    </section>
+  </main>
+
+  <script src="config.js?v=4"></script>
+  <script src="desenhos.js?v=4"></script>
+  <script src="pessoal.js?v=4"></script>
+</body>
+</html>

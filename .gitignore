@@ -1,6 +1,8 @@
 # só do PC do jm (não vão pro GitHub)
 testes/
 CLAUDE.md
+# o código da planilha tem a senha da página do pessoal
+planilha/
 *.log
 Thumbs.db
 desktop.ini

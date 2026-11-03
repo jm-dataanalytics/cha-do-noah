@@ -1,5 +1,7 @@
-// Chá do Noah: a pessoa coloca o nome e o WhatsApp, escolhe a fralda (e, se quiser, o mimo), e o site
-// faz 2 cartões em PNG: o recado do Noah e o lembrete. Tudo acontece no aparelho dela.
+// Chá do Noah: a pessoa coloca o nome e o WhatsApp, diz como o Noah vai chamar ela (titia, titio...),
+// escolhe a fraldinha (ou deixa a mamãe escolher) e, se quiser, o mimo. O site faz 2 cartões em PNG:
+// o recado do Noah e o lembrete. Com a planilha ligada (CHA.planilha), o site conta as fraldas na
+// proporção e não deixa a mensagem repetir.
 
 // ---------- regras ----------
 
@@ -52,42 +54,51 @@ function numeroDoTexto(texto) {
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
 
-// "Tanto faz": cada pacote da lista vira uma "vaga" e o telefone escolhe uma, então o sorteio sai
-// na mesma proporção da lista (e a mesma pessoa sempre tira o mesmo)
+function fraldaDoTamanho(tamanho) {
+  return CHA.fraldas.find((f) => f.tamanho === tamanho) || null;
+}
+
+// sem a planilha, "a mamãe escolhe" pelo telefone, na proporção da lista (a mesma pessoa sempre tira o mesmo)
 function fraldaPara(telefone) {
   const vagas = [];
   for (const f of CHA.fraldas) for (let i = 0; i < f.pacotes; i++) vagas.push(f);
   return vagas[numeroDoTexto(`fralda|${telefone}`) % vagas.length];
 }
 
-// "*" = tanto faz
-function fraldaEscolhida(tamanho, telefone) {
-  if (tamanho === "*") return fraldaPara(telefone);
-  return CHA.fraldas.find((f) => f.tamanho === tamanho) || null;
-}
-
-// os tamanhos de que vocês mais precisam ganham o selinho "mais pedido"
+// sem a planilha: os tamanhos de que vocês mais precisam ganham o selinho
 function maisPedidos() {
   const maior = Math.max(...CHA.fraldas.map((f) => f.pacotes));
   return new Set(CHA.fraldas.filter((f) => f.pacotes === maior).map((f) => f.tamanho));
 }
 
-function recadoPara(telefone, nome) {
-  const r = CHA.recado;
-  let n = numeroDoTexto(`recado|${telefone}|${semAcento(nome).toLowerCase()}`);
-  const escolher = (lista) => {
-    const frase = lista[n % lista.length];
-    n = Math.floor(n / lista.length);
-    return frase.split("{nome}").join(nome);
-  };
-  const saudacao = escolher(r.saudacoes);
-  const corpo = [escolher(r.comecos), escolher(r.meios), escolher(r.finais)].join(" ");
-  return { saudacao, corpo };
+// com a planilha: os que mais estão faltando, na proporção
+function maisPrecisam(s) {
+  const metas = Object.fromEntries(CHA.fraldas.map((f) => [f.tamanho, f.pacotes]));
+  const parte = (t) => (s.faltam[t] || 0) / metas[t];
+  const maior = Math.max(0, ...s.livres.map(parte));
+  return new Set(maior > 0 ? s.livres.filter((t) => parte(t) === maior) : []);
+}
+
+// como o Noah chama a pessoa: "titia Ana", "titio Carlos"
+function comoONoahChama(chamado, nome) {
+  return chamado ? `${chamado} ${nome}` : nome;
+}
+
+// a mensagem nº n (de 1 a 100), já com o nome
+function mensagem(n, chamadoENome) {
+  const m = CHA.mensagens[(n - 1) % CHA.mensagens.length];
+  const troca = (t) => t.split("{nome}").join(chamadoENome);
+  return { saudacao: troca(m.oi), corpo: troca(m.recado) };
+}
+
+// sem a planilha, o número vem do telefone e do nome (aí pode repetir entre pessoas diferentes)
+function mensagemLocal(telefone, nome) {
+  return 1 + (numeroDoTexto(`recado|${telefone}|${semAcento(nome).toLowerCase()}`) % CHA.mensagens.length);
 }
 
 function mimoPara(telefone, nome) {
   const lista = CHA.mimo.mensagens;
-  return lista[numeroDoTexto(`mimo|${telefone}|${semAcento(nome).toLowerCase()}`) % lista.length].split("{nome}").join(nome);
+  return lista[numeroDoTexto(`mimo|${telefone}|${semAcento(nome).toLowerCase()}`) % lista.length];
 }
 
 function dataPorExtenso() {
@@ -97,14 +108,18 @@ function dataPorExtenso() {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-function montarDados(nome, telefone, tamanho = "*", comMimo = false) {
+// tudo o que os cartões precisam
+function montarDados({ nome, chamado = "", telefone, tamanho = "*", mimo = false, numero = 0, mamaeEscolheu = false }) {
+  const chamadoENome = comoONoahChama(chamado, nome);
+  const n = numero || mensagemLocal(telefone, nome);
   return {
-    nome,
+    nome: chamadoENome,
     telefone,
-    fralda: fraldaEscolhida(tamanho, telefone),
-    tantoFaz: tamanho === "*",
-    mimo: comMimo ? mimoPara(telefone, nome) : "",
-    ...recadoPara(telefone, nome),
+    fralda: fraldaDoTamanho(tamanho) || fraldaPara(telefone),
+    mamaeEscolheu: mamaeEscolheu || tamanho === "*",
+    numero: n,
+    mimo: mimo ? mimoPara(telefone, nome) : "",
+    ...mensagem(n, chamadoENome),
     dataExtenso: dataPorExtenso(),
   };
 }
@@ -113,7 +128,9 @@ function textoDoWhatsApp(d, link) {
   const linhas = [
     `*${CHA.titulo}* 💙`,
     "",
-    `Oi, ${d.nome}! Não esquece: no dia do chá, você vai levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`,
+    `${d.saudacao} ${d.corpo}`,
+    "",
+    `Lembrete: no dia do chá, levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`,
   ];
   if (d.mimo) linhas.push(`🎁 E um mimo pro ${CHA.bebe}: ${d.mimo}`);
   linhas.push("", `📅 ${d.dataExtenso}`);
@@ -124,6 +141,42 @@ function textoDoWhatsApp(d, link) {
   return linhas.join("\n");
 }
 
+// ---------- a planilha (a "memória" do site; opcional) ----------
+
+const PLANILHA = (() => {
+  const url = CHA.planilha;
+  const metas = () => Object.fromEntries(CHA.fraldas.map((f) => [f.tamanho, f.pacotes]));
+  const metasTexto = () => CHA.fraldas.map((f) => `${f.tamanho}:${f.pacotes}`).join(",");
+
+  async function pedir(opcoes, ms) {
+    const ctrl = new AbortController();
+    const prazo = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const r = await fetch(opcoes.url, { ...opcoes, signal: ctrl.signal, cache: "no-store" });
+      return await r.json();
+    } catch (e) {
+      return null; // sem internet ou a planilha demorou: o site segue sozinho
+    } finally {
+      clearTimeout(prazo);
+    }
+  }
+
+  return {
+    ligada: !!url,
+    metas,
+    async situacao() {
+      if (!url) return null;
+      const r = await pedir({ url: `${url}?acao=situacao&metas=${encodeURIComponent(metasTexto())}` }, 10000);
+      return r && r.ok ? r.situacao : null;
+    },
+    // texto puro (sem "application/json") pra o Google aceitar o pedido vindo de outro site
+    enviar(corpo, ms = 25000) {
+      if (!url) return Promise.resolve(null);
+      return pedir({ url, method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(corpo) }, ms);
+    },
+  };
+})();
+
 // ---------- tela ----------
 
 (() => {
@@ -132,38 +185,87 @@ function textoDoWhatsApp(d, link) {
   const campoNome = $("#nome");
   const campoTelefone = $("#telefone");
   const campoMimo = $("#mimo");
-  const listaTamanhos = $("#tamanhos");
   const aviso = $("#aviso");
   const botaoGerar = $("#gerar");
   const resultado = $("#resultado");
   const avisoResultado = $("#aviso-resultado");
   const MEMORIA = "cha-do-noah";
+  const CHAMADOS = ["titia", "titio", "vovó", "vovô"];
   const TEXTO_BOTAO = botaoGerar.innerHTML;
   let arquivos = [];
   let enderecos = [];
+  let dadosAtuais = null;
+  // quando a pessoa escolhe titia/titio na mão, vale pra aquele primeiro nome; outro nome (outra pessoa no
+  // mesmo celular) volta a adivinhar
+  let chamadoManualPara = "";
+  const primeiroNome = (texto) => semAcento((String(texto || "").trim().split(/\s+/)[0] || "").toLowerCase());
 
-  document.title = CHA.titulo;
-  $("#titulo").textContent = CHA.titulo;
-  $("#data").textContent = dataPorExtenso();
-  $("#bebe").innerHTML = DESENHOS.paraSvg(DESENHOS.bebe, `Desenho do ${CHA.bebe}`);
-  CARTOES.carregarFontes(); // as letras dos cartões já vão baixando
-
-  // os bichinhos espiando por cima do formulário: a cabeça atrás do painel, as patinhas na frente
-  // (o CSS sobe cada desenho até a linha da borda ficar no topo do painel)
-  document.querySelectorAll("[data-bicho]").forEach((el) => {
-    const bicho = DESENHOS[el.dataset.bicho];
-    el.innerHTML = DESENHOS.paraSvg(DESENHOS.parte(bicho, el.dataset.parte));
-    el.style.setProperty("--borda", (bicho.borda / bicho.largura).toFixed(4));
-  });
-
-  // os tamanhos de fralda viram botões (do config.js)
-  const destaque = maisPedidos();
   const criar = (tag, classe, texto) => {
     const el = document.createElement(tag);
     if (classe) el.className = classe;
     if (texto) el.textContent = texto;
     return el;
   };
+
+  document.title = CHA.titulo;
+  $("#titulo").textContent = CHA.titulo;
+  $("#data").textContent = dataPorExtenso();
+  $("#bebe").innerHTML = DESENHOS.paraSvg(DESENHOS.bebe, `Desenho do ${CHA.bebe}`);
+  $("#convite-oi").textContent = CHA.convite.oi;
+  $("#convite-barriguinha").textContent = CHA.convite.barriguinha;
+  $("#titulo-ajudinha").textContent = CHA.convite.tituloAjudinha;
+  $("#convite-ajudinha").textContent = CHA.convite.ajudinha;
+  $("#convite-mamae").textContent = CHA.convite.mamaeEscolhe;
+  $("#pedido-mamae").textContent = CHA.convite.pedidoMamae;
+  $("#botao-mamae").textContent = CHA.convite.botaoMamae;
+  $("#mimo-convite").textContent = CHA.mimo.convite;
+  $("#mimo-explicacao").textContent = CHA.mimo.explicacao;
+  $("#mimo-presente").innerHTML = DESENHOS.paraSvg(DESENHOS.presente);
+  $("#privacidade").textContent = PLANILHA.ligada
+    ? `🔒 Seu nome e seu WhatsApp vão só pros pais do ${CHA.bebe}.`
+    : "🔒 Seu nome e seu telefone não saem do seu aparelho.";
+  CARTOES.carregarFontes(); // as letras dos cartões já vão baixando
+
+  // os bichinhos espiando por cima do formulário (o CSS sobe cada desenho até a borda ficar no topo do painel)
+  document.querySelectorAll("[data-bicho]").forEach((el) => {
+    const bicho = DESENHOS[el.dataset.bicho];
+    el.innerHTML = DESENHOS.paraSvg(DESENHOS.parte(bicho, el.dataset.parte));
+    el.style.setProperty("--borda", (bicho.borda / bicho.largura).toFixed(4));
+  });
+
+  // como o Noah vai chamar a pessoa
+  for (const c of CHAMADOS) {
+    const opcao = criar("label", "chamado");
+    const radio = criar("input");
+    radio.type = "radio";
+    radio.name = "chamado";
+    radio.value = c;
+    opcao.append(radio, criar("span", "chip", c.charAt(0).toUpperCase() + c.slice(1)));
+    $("#chamados").append(opcao);
+  }
+  const chamadoMarcado = () => (form.querySelector('input[name="chamado"]:checked') || {}).value || "";
+  function marcarChamado(c) {
+    form.querySelectorAll('input[name="chamado"]').forEach((r) => (r.checked = r.value === c));
+  }
+  function atualizarPreviaOi() {
+    const nome = NOMES.entender(nomeArrumado(campoNome.value)).nome;
+    const c = chamadoMarcado();
+    $("#previa-oi").textContent = nome && c ? `O ${CHA.bebe} vai dizer: “Oi, ${comoONoahChama(c, nome)}!” 🥹` : "";
+  }
+  campoNome.addEventListener("input", () => {
+    if (primeiroNome(campoNome.value) !== chamadoManualPara) {
+      chamadoManualPara = "";
+      marcarChamado(NOMES.entender(nomeArrumado(campoNome.value)).chamado);
+    }
+    atualizarPreviaOi();
+  });
+  $("#chamados").addEventListener("change", () => {
+    chamadoManualPara = primeiroNome(campoNome.value);
+    atualizarPreviaOi();
+  });
+
+  // as fraldinhas (do config.js); com a planilha, o que já completou fica apagado
+  const tamanhos = [];
   for (const f of CHA.fraldas) {
     const opcao = criar("label", "tamanho");
     const radio = criar("input");
@@ -171,20 +273,30 @@ function textoDoWhatsApp(d, link) {
     radio.name = "tamanho";
     radio.value = f.tamanho;
     const chip = criar("span", "chip");
-    chip.append(criar("span", "tamanho-letra", f.tamanho), criar("span", "tamanho-nome", f.nome));
-    if (destaque.has(f.tamanho)) chip.append(criar("span", "selo", "mais pedido"));
+    const selo = criar("span", "selo");
+    const faltam = criar("span", "faltam");
+    chip.append(criar("span", "tamanho-letra", f.tamanho), criar("span", "tamanho-nome", f.nome), faltam, selo);
     opcao.append(radio, chip);
-    listaTamanhos.append(opcao);
+    $("#tamanhos").append(opcao);
+    tamanhos.push({ tamanho: f.tamanho, opcao, radio, selo, faltam });
   }
-  $("#tanto-faz-texto").textContent = CHA.tantoFaz;
-  $("#mimo-convite").textContent = CHA.mimo.convite;
-  $("#mimo-explicacao").textContent = CHA.mimo.explicacao;
-  $("#mimo-presente").innerHTML = DESENHOS.paraSvg(DESENHOS.presente);
+  function pintarTamanhos(s) {
+    const destaque = s ? maisPrecisam(s) : maisPedidos();
+    for (const t of tamanhos) {
+      const completo = !!s && s.livres.indexOf(t.tamanho) < 0;
+      t.radio.disabled = completo;
+      if (completo && t.radio.checked) t.radio.checked = false;
+      t.opcao.classList.toggle("completo", completo);
+      t.selo.textContent = completo ? "completo 💙" : destaque.has(t.tamanho) ? (s ? "precisa mais" : "mais pedido") : "";
+      t.selo.hidden = !t.selo.textContent;
+      t.faltam.textContent = s && !completo ? `faltam ${s.faltam[t.tamanho]}` : "";
+      t.faltam.hidden = !t.faltam.textContent;
+    }
+  }
+  pintarTamanhos(null);
+  if (PLANILHA.ligada) PLANILHA.situacao().then((s) => s && pintarTamanhos(s));
 
-  const tamanhoMarcado = () => {
-    const marcado = form.querySelector('input[name="tamanho"]:checked');
-    return marcado ? marcado.value : "";
-  };
+  const tamanhoMarcado = () => (form.querySelector('input[name="tamanho"]:checked') || {}).value || "";
 
   // quem já preencheu neste aparelho encontra tudo de volta
   try {
@@ -193,8 +305,13 @@ function textoDoWhatsApp(d, link) {
       campoNome.value = salvo.nome || "";
       campoTelefone.value = salvo.telefone || "";
       campoMimo.checked = !!salvo.mimo;
+      if (salvo.chamado) {
+        marcarChamado(salvo.chamado);
+        chamadoManualPara = primeiroNome(salvo.nome);
+      }
       const radio = salvo.tamanho && form.querySelector(`input[name="tamanho"][value="${CSS.escape(salvo.tamanho)}"]`);
-      if (radio) radio.checked = true;
+      if (radio && !radio.disabled) radio.checked = true;
+      atualizarPreviaOi();
     }
   } catch (e) {
     // navegador sem memória (aba anônima): tudo bem
@@ -216,24 +333,45 @@ function textoDoWhatsApp(d, link) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     avisar("");
-    const nome = nomeArrumado(campoNome.value);
-    if ((nome.match(/\p{L}/gu) || []).length < 2) return avisar("Escreva o seu nome.", campoNome);
+    const nomeCompleto = nomeArrumado(campoNome.value);
+    if ((nomeCompleto.match(/\p{L}/gu) || []).length < 2) return avisar("Escreva o seu nome.", campoNome);
     const telefone = telefoneValido(campoTelefone.value);
+    const chamado = chamadoMarcado();
+    if (!chamado) return avisar(`Escolha como o ${CHA.bebe} vai te chamar.`, form.querySelector('input[name="chamado"]'));
     if (!telefone) return avisar("Confira o WhatsApp: DDD + número, ex.: (21) 99999-9999.", campoTelefone);
     const tamanho = tamanhoMarcado();
-    if (!tamanho) return avisar("Escolha o tamanho da fralda.", form.querySelector('input[name="tamanho"]'));
+    if (!tamanho) return avisar("Escolha uma fraldinha pra mim (ou deixe a mamãe escolher!).", $("#escolha-fralda"));
 
     botaoGerar.disabled = true;
     botaoGerar.textContent = "Fazendo seus cartões...";
     try {
-      const dados = montarDados(nome, telefone, tamanho, campoMimo.checked);
+      const nome = NOMES.entender(nomeCompleto).nome;
+      let pedido = { nome, chamado, telefone, tamanho, mimo: campoMimo.checked };
+      let repetido = false;
+      if (PLANILHA.ligada) {
+        const r = await PLANILHA.enviar({
+          acao: "registrar", nome: nomeCompleto, chamado, telefone, tamanho, mimo: campoMimo.checked,
+          metas: PLANILHA.metas(), mensagens: CHA.mensagens.length,
+        });
+        if (r && r.erro === "completo") {
+          pintarTamanhos(r.situacao);
+          return avisar(`Ops! A fralda ${r.tamanho} acabou de completar 💙 Escolhe outra pra mim?`, $("#escolha-fralda"));
+        }
+        if (r && r.ok) {
+          pedido = { ...pedido, tamanho: r.tamanho, numero: r.mensagem, mamaeEscolheu: r.mamaeEscolheu, mimo: r.mimo };
+          repetido = !!r.repetido;
+          if (r.situacao) pintarTamanhos(r.situacao);
+        }
+      }
+      if (pedido.tamanho === "*") pedido = { ...pedido, tamanho: fraldaPara(telefone).tamanho, mamaeEscolheu: true };
+      const dados = montarDados(pedido);
       const telas = [await CARTOES.recado(dados), await CARTOES.lembrete(dados)];
       const pngs = await Promise.all(telas.map((t) => new Promise((ok) => t.toBlob(ok, "image/png"))));
-      mostrarResultado(dados, pngs);
-      campoNome.value = nome;
+      mostrarResultado(dados, pngs, repetido);
+      campoNome.value = nomeCompleto;
       campoTelefone.value = telefoneFormatado(telefone);
       try {
-        localStorage.setItem(MEMORIA, JSON.stringify({ nome, telefone: telefoneFormatado(telefone), tamanho, mimo: campoMimo.checked }));
+        localStorage.setItem(MEMORIA, JSON.stringify({ nome: nomeCompleto, telefone: telefoneFormatado(telefone), chamado, tamanho, mimo: campoMimo.checked }));
       } catch (e2) {
         // sem memória: só não lembra na próxima vez
       }
@@ -246,7 +384,8 @@ function textoDoWhatsApp(d, link) {
     }
   });
 
-  function mostrarResultado(d, pngs) {
+  function mostrarResultado(d, pngs, repetido) {
+    dadosAtuais = d;
     enderecos.forEach((u) => URL.revokeObjectURL(u));
     const base = `cha-do-noah-${semAcento(d.nome).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cartao"}`;
     arquivos = [
@@ -261,28 +400,36 @@ function textoDoWhatsApp(d, link) {
     $("#baixar-lembrete").href = enderecos[1];
     $("#baixar-lembrete").download = arquivos[1].name;
     $("#resultado-titulo").textContent = `Prontinho, ${d.nome}!`;
-    const fralda = `fralda tamanho ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
-    $("#resultado-fralda").textContent = d.tantoFaz ? `O Noah escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`;
-    $("#whatsapp").href = `https://wa.me/55${d.telefone}?text=${encodeURIComponent(textoDoWhatsApp(d, location.href.split(/[?#]/)[0]))}`;
-    // celular: abre o "compartilhar" com as 2 imagens (WhatsApp, salvar na galeria...)
-    $("#compartilhar").hidden = !(navigator.canShare && navigator.canShare({ files: arquivos }));
+    const fralda = `fralda ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
+    $("#resultado-fralda").textContent = (repetido ? "Você já tinha feito seus cartões 💙 " : "") +
+      (d.mamaeEscolheu ? `A mamãe escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`);
+    $("#lembrete-resumo").textContent = `Fralda ${d.fralda.tamanho}${d.mimo ? " + mimo" : ""} · ${d.dataExtenso.split(",")[0]}, ${CHA.data.split("-").reverse().slice(0, 2).join("/")}`;
     avisoResultado.textContent = "";
     resultado.hidden = false;
     resultado.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // as 2 fotos (o cartão e o lembrete) vão pro WhatsApp pelo "compartilhar" do celular;
+  // onde não dá (alguns computadores), abre o WhatsApp com o recado em texto
   $("#compartilhar").addEventListener("click", async () => {
     avisoResultado.textContent = "";
-    try {
-      await navigator.share({ files: arquivos });
-    } catch (erro) {
-      if (erro && erro.name !== "AbortError") avisoResultado.textContent = "Não deu pra abrir o compartilhar. Use o Baixar embaixo de cada cartão.";
+    if (navigator.canShare && navigator.canShare({ files: arquivos })) {
+      try {
+        await navigator.share({ files: arquivos });
+      } catch (erro) {
+        if (erro && erro.name !== "AbortError") avisoResultado.textContent = "Não deu pra abrir o compartilhar. Use o Baixar e mande as fotos pelo WhatsApp.";
+      }
+      return;
     }
+    window.open(`https://wa.me/55${dadosAtuais.telefone}?text=${encodeURIComponent(textoDoWhatsApp(dadosAtuais, location.href.split(/[?#]/)[0]))}`, "_blank", "noopener");
+    avisoResultado.textContent = "Neste aparelho o WhatsApp só recebe o texto. Pra mandar as fotos, toque em Baixar e anexe na conversa.";
   });
 
   $("#outra").addEventListener("click", () => {
     resultado.hidden = true;
     form.reset();
+    chamadoManualPara = "";
+    atualizarPreviaOi();
     avisar("");
     window.scrollTo({ top: 0, behavior: "smooth" });
     campoNome.focus({ preventScroll: true });
