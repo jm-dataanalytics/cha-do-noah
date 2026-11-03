@@ -3,6 +3,8 @@ testes/
 CLAUDE.md
 # o código da planilha tem a senha da página do pessoal
 planilha/
+# material de referência do jm (só dele)
+referencias/
 *.log
 Thumbs.db
 desktop.ini
