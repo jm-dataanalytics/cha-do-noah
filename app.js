@@ -1,7 +1,7 @@
 // Chá do Noah: a pessoa coloca o nome e o WhatsApp, diz como o Noah vai chamar ela (titia, titio...),
 // escolhe a fraldinha (ou deixa a mamãe escolher) e, se quiser, o mimo. O site faz 2 cartões em PNG:
 // o recado do Noah e o lembrete. Com a planilha ligada (CHA.planilha), o site conta as fraldas na
-// proporção e não deixa a mensagem repetir.
+// proporção, não deixa a mensagem repetir e, quando a lista inteira completa, para de pedir fralda.
 
 // ---------- regras ----------
 
@@ -109,14 +109,15 @@ function dataPorExtenso() {
 }
 
 // tudo o que os cartões precisam
-function montarDados({ nome, chamado = "", telefone, tamanho = "*", mimo = false, numero = 0, mamaeEscolheu = false }) {
+// semFralda: a pessoa preencheu depois que a lista completou (fralda = null: leva só o abraço)
+function montarDados({ nome, chamado = "", telefone, tamanho = "*", mimo = false, numero = 0, mamaeEscolheu = false, semFralda = false }) {
   const chamadoENome = comoONoahChama(chamado, nome);
   const n = numero || mensagemLocal(telefone, nome);
   return {
     nome: chamadoENome,
     telefone,
-    fralda: fraldaDoTamanho(tamanho) || fraldaPara(telefone),
-    mamaeEscolheu: mamaeEscolheu || tamanho === "*",
+    fralda: semFralda ? null : fraldaDoTamanho(tamanho) || fraldaPara(telefone),
+    mamaeEscolheu: !semFralda && (mamaeEscolheu || tamanho === "*"),
     numero: n,
     mimo: mimo ? mimoPara(telefone, nome) : "",
     ...mensagem(n, chamadoENome),
@@ -130,7 +131,9 @@ function textoDoWhatsApp(d, link) {
     "",
     `${d.saudacao} ${d.corpo}`,
     "",
-    `Lembrete: no dia do chá, levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`,
+    d.fralda
+      ? `Lembrete: no dia do chá, levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`
+      : "Lembrete: as fraldas da lista já estão garantidas, então é só levar você! 💙",
   ];
   if (d.mimo) linhas.push(`🎁 E um mimo pro ${CHA.bebe}: ${d.mimo}`);
   linhas.push("", `📅 ${d.dataExtenso}`);
@@ -280,7 +283,20 @@ const PLANILHA = (() => {
     $("#tamanhos").append(opcao);
     tamanhos.push({ tamanho: f.tamanho, opcao, radio, selo, faltam });
   }
+  // a lista inteira completou: no lugar dos tamanhos, o Noah agradece e diz que não precisa trazer nada
+  let listaCompleta = false;
+  function mostrarListaCompleta(sim) {
+    listaCompleta = sim;
+    $("#escolha-fralda").classList.toggle("lista-completa", sim);
+    $("#titulo-ajudinha").textContent = sim ? CHA.convite.tituloCompleta : CHA.convite.tituloAjudinha;
+    $("#convite-ajudinha").textContent = sim ? CHA.convite.completa : CHA.convite.ajudinha;
+    $("#tamanhos").hidden = sim;
+    $("#convite-mamae").hidden = sim;
+    $(".mamae-escolhe").hidden = sim;
+  }
+
   function pintarTamanhos(s) {
+    mostrarListaCompleta(!!(s && s.cheia));
     const destaque = s ? maisPrecisam(s) : maisPedidos();
     for (const t of tamanhos) {
       const completo = !!s && s.livres.indexOf(t.tamanho) < 0;
@@ -339,7 +355,7 @@ const PLANILHA = (() => {
     const chamado = chamadoMarcado();
     if (!chamado) return avisar(`Escolha como o ${CHA.bebe} vai te chamar.`, form.querySelector('input[name="chamado"]'));
     if (!telefone) return avisar("Confira o WhatsApp: DDD + número, ex.: (21) 99999-9999.", campoTelefone);
-    const tamanho = tamanhoMarcado();
+    const tamanho = listaCompleta ? "-" : tamanhoMarcado();
     if (!tamanho) return avisar("Escolha uma fraldinha pra mim (ou deixe a mamãe escolher!).", $("#escolha-fralda"));
 
     botaoGerar.disabled = true;
@@ -357,12 +373,17 @@ const PLANILHA = (() => {
           pintarTamanhos(r.situacao);
           return avisar(`Ops! A fralda ${r.tamanho} acabou de completar 💙 Escolhe outra pra mim?`, $("#escolha-fralda"));
         }
+        if (r && r.erro === "mudou") {
+          pintarTamanhos(r.situacao);
+          return avisar("A lista das fraldinhas mudou 💙 Escolhe uma pra mim?", $("#escolha-fralda"));
+        }
         if (r && r.ok) {
-          pedido = { ...pedido, tamanho: r.tamanho, numero: r.mensagem, mamaeEscolheu: r.mamaeEscolheu, mimo: r.mimo };
+          pedido = { ...pedido, tamanho: r.tamanho, semFralda: !!r.semFralda, numero: r.mensagem, mamaeEscolheu: r.mamaeEscolheu, mimo: r.mimo };
           repetido = !!r.repetido;
           if (r.situacao) pintarTamanhos(r.situacao);
         }
       }
+      if (pedido.tamanho === "-") pedido = { ...pedido, semFralda: true };
       if (pedido.tamanho === "*") pedido = { ...pedido, tamanho: fraldaPara(telefone).tamanho, mamaeEscolheu: true };
       const dados = montarDados(pedido);
       const telas = [await CARTOES.recado(dados), await CARTOES.lembrete(dados)];
@@ -400,10 +421,14 @@ const PLANILHA = (() => {
     $("#baixar-lembrete").href = enderecos[1];
     $("#baixar-lembrete").download = arquivos[1].name;
     $("#resultado-titulo").textContent = `Prontinho, ${d.nome}!`;
-    const fralda = `fralda ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
-    $("#resultado-fralda").textContent = (repetido ? "Você já tinha feito seus cartões 💙 " : "") +
-      (d.mamaeEscolheu ? `A mamãe escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`);
-    $("#lembrete-resumo").textContent = `Fralda ${d.fralda.tamanho}${d.mimo ? " + mimo" : ""} · ${d.dataExtenso.split(",")[0]}, ${CHA.data.split("-").reverse().slice(0, 2).join("/")}`;
+    let leva;
+    if (!d.fralda) leva = `As fraldas da lista já estão garantidas: você vai levar ${d.mimo ? "o seu abraço e um mimo 🎁" : "só o seu abraço 💙"}`;
+    else {
+      const fralda = `fralda ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
+      leva = d.mamaeEscolheu ? `A mamãe escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`;
+    }
+    $("#resultado-fralda").textContent = (repetido ? "Você já tinha feito seus cartões 💙 " : "") + leva;
+    $("#lembrete-resumo").textContent = `${d.fralda ? `Fralda ${d.fralda.tamanho}` : "Seu abraço"}${d.mimo ? " + mimo" : ""} · ${d.dataExtenso.split(",")[0]}, ${CHA.data.split("-").reverse().slice(0, 2).join("/")}`;
     avisoResultado.textContent = "";
     resultado.hidden = false;
     resultado.scrollIntoView({ behavior: "smooth", block: "start" });

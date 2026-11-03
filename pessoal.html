@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
-  <link rel="stylesheet" href="estilo.css?v=6">
+  <link rel="stylesheet" href="estilo.css?v=7">
   <style>
     .pagina-pessoal { max-width: 640px; }
     .topo-pessoal { text-align: center; margin-bottom: 18px; }
@@ -38,6 +38,13 @@
     .botao-perigo:hover { background: #a63a31; }
     .ok { margin: 12px 0 0; font-weight: 800; color: #3d9a63; }
     .ok:empty { display: none; }
+    .nota-completa { margin: 12px 0 0; padding: 12px 14px; font-weight: 700; color: var(--azul-escuro); background: var(--azul-marcado); border-radius: 14px; }
+    .pessoa .numero { color: var(--suave); font-weight: 800; }
+    .pessoa .sem-fralda { color: #3d9a63; font-weight: 800; }
+    .pessoa .detalhes span { white-space: nowrap; }
+    .painel .fala:last-child { margin-bottom: 0; }
+    .painel .botao + .fala, .painel .fala + .botao { margin-top: 12px; }
+    .dica-pequena { margin: 10px 0 0; font-size: 0.85rem; color: var(--suave); }
   </style>
 </head>
 <body>
@@ -63,6 +70,25 @@
         <h2>Fraldas</h2>
         <div class="contagem" id="contagem"></div>
         <p class="total" id="total"></p>
+        <p class="nota-completa" id="nota-completa" hidden>A lista completou 💙 Quem preencher agora ganha os cartões do mesmo jeito e não precisa trazer fralda.</p>
+      </section>
+      <section class="painel">
+        <h2>A lista em Excel</h2>
+        <p class="fala">Nome, WhatsApp, fralda, mimo e uma coluna pra marcar quem chegou. Já sai pronta pra imprimir.</p>
+        <button class="botao botao-claro" id="baixar-excel" type="button">📥 Baixar a lista em Excel</button>
+        <p class="aviso" id="aviso-excel" role="status"></p>
+      </section>
+      <section class="painel">
+        <h2>🎉 O sorteio da festa</h2>
+        <p class="fala">Só pro dia do chá: não aparece no site nem nos cartões. Cada pessoa da lista entra com a mesma chance, e quem ganha fica com a metade da chance de quem ainda não ganhou.</p>
+        <a class="botao botao-principal" href="sorteio.html">Abrir o sorteio</a>
+        <p class="dica-pequena">O resultado fica guardado no aparelho onde o sorteio rodou e entra no Excel baixado nele.</p>
+      </section>
+      <section class="painel" id="zerar">
+        <h2>🧹 Zerar a lista</h2>
+        <p class="fala">Pode usar sempre que quiser testar: quem preencheu vai pra aba "Arquivo" da planilha (nada se perde), e as fraldas e as mensagens começam do zero. Antes de mandar o link de verdade, zere uma última vez.</p>
+        <button class="botao botao-perigo" id="limpar" type="button">🧹 Limpar o pessoal</button>
+        <p class="ok" id="aviso-limpar" role="status"></p>
       </section>
       <section class="painel">
         <h2>Quem já preencheu</h2>
@@ -75,16 +101,11 @@
       <ol class="mensagens" id="mensagens"></ol>
     </section>
 
-    <section class="painel" id="zerar" hidden>
-      <h2>Zerar pra valer</h2>
-      <p class="fala">Pra quando for mandar o link de verdade: quem preencheu até agora (os testes) vai pra aba "Arquivo" da planilha, nada se perde, e a contagem e as mensagens começam do zero.</p>
-      <button class="botao botao-perigo" id="limpar" type="button">🧹 Limpar o pessoal</button>
-      <p class="ok" id="aviso-limpar" role="status"></p>
-    </section>
   </main>
 
-  <script src="config.js?v=6"></script>
-  <script src="desenhos.js?v=6"></script>
-  <script src="pessoal.js?v=6"></script>
+  <script src="config.js?v=7"></script>
+  <script src="desenhos.js?v=7"></script>
+  <script src="lista-excel.js?v=7"></script>
+  <script src="pessoal.js?v=7"></script>
 </body>
 </html>

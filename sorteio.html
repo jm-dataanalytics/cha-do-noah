@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Sorteio do Chá do Noah</title>
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="estilo.css?v=7">
+  <style>
+    .pagina-sorteio { max-width: 1320px; }
+    .topo-sorteio { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; }
+    .topo-sorteio .rostinho { flex: none; width: 60px; }
+    .topo-sorteio .rostinho svg { display: block; width: 100%; height: auto; }
+    .topo-sorteio h1 { margin: 0; font-size: clamp(1.45rem, 5.6vw, 2.4rem); text-wrap: balance; }
+    .topo-sorteio .data { font-size: 0.95rem; }
+    .botoes-topo { display: flex; gap: 8px; margin-left: auto; }
+    .botao-icone {
+      flex: none; min-width: 44px; min-height: 44px; padding: 8px 12px; border: 0; border-radius: 14px;
+      font: inherit; font-weight: 800; color: var(--azul-escuro); background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 12px rgba(36, 57, 92, 0.08); cursor: pointer;
+    }
+    .botao-icone:focus-visible { outline: 3px solid var(--azul-escuro); outline-offset: 2px; }
+    .so-pc { display: none; }
+
+    .pagina-sorteio h2 { margin: 0 0 10px; font-family: "Fredoka", "Nunito", sans-serif; font-size: 1.35rem; color: var(--azul-escuro); }
+    .mesa { display: grid; gap: 18px; }
+    .coluna { display: grid; gap: 18px; align-content: start; min-width: 0; }
+
+    /* o palco: onde o nome aparece */
+    .palco { text-align: center; overflow: hidden; }
+    .premio-atual { min-height: 1.6em; margin: 0 0 8px; font-weight: 800; font-size: 1.1rem; color: var(--rosa-forte); }
+    .sorteado {
+      display: grid; place-items: center; align-content: center; gap: 6px; min-height: 210px; padding: 18px 12px;
+      background: linear-gradient(180deg, #eaf3fd 0%, #f6faff 100%); border-radius: 22px;
+      transition: background-color 0.3s;
+    }
+    .sorteado-numero {
+      padding: 3px 12px; font-weight: 800; font-size: 0.95rem; color: var(--azul-forte);
+      background: #fff; border-radius: 999px;
+    }
+    .sorteado-numero:empty { display: none; }
+    .sorteado-nome {
+      max-width: 100%; font-family: "Fredoka", "Nunito", sans-serif; font-weight: 700;
+      font-size: clamp(2rem, 8.5vw, 4.4rem); line-height: 1.05; color: var(--azul-escuro); overflow-wrap: anywhere;
+    }
+    .sorteado-detalhe { font-weight: 700; line-height: 1.45; color: var(--suave); white-space: pre-line; }
+    .sorteado-detalhe:empty { display: none; }
+    .palco.girando .sorteado-nome { color: var(--azul); }
+    .palco.revelado .sorteado { background: linear-gradient(180deg, #fff1f5 0%, #fff8e6 100%); }
+    .palco.revelado .sorteado-nome { animation: estourar 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+    @keyframes estourar {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .sortear { display: grid; gap: 10px; margin-top: 16px; text-align: left; }
+    .sortear .rotulo { margin: 0; }
+    .botao-sortear { font-size: 1.45rem; min-height: 64px; }
+    .botao:disabled { opacity: 0.6; cursor: wait; }
+    .palco .link { margin-top: 8px; }
+
+    /* a chance de cada um */
+    .explicacao { margin: 0 0 14px; line-height: 1.5; }
+    .explicacao b { color: var(--azul-escuro); }
+    .chances { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .chance { display: flex; }
+    .chance button {
+      display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: space-between; gap: 6px 6px;
+      width: 100%; min-height: 60px; padding: 8px 10px; font: inherit; text-align: left; color: var(--texto);
+      background: #fbfdff; border: 2px solid var(--borda); border-radius: 14px; cursor: pointer;
+      transition: background-color 0.12s, border-color 0.12s, transform 0.12s, opacity 0.2s;
+    }
+    .chance button:focus-visible { outline: 3px solid var(--azul-escuro); outline-offset: 2px; }
+    .chance-num { font-weight: 800; font-size: 0.8rem; line-height: 1.45; color: var(--suave); }
+    /* o nome inteiro, em até 2 linhas */
+    .chance-nome {
+      display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+      font-weight: 800; font-size: 0.92rem; line-height: 1.25; color: var(--azul-escuro); overflow-wrap: anywhere;
+    }
+    .chance-rodape { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+    .chance-pct { flex: none; min-width: 3.4em; font-weight: 800; font-size: 0.85rem; text-align: right; color: var(--azul-forte); font-variant-numeric: tabular-nums; }
+    .chance-barra { flex: 1; height: 6px; background: var(--azul-marcado); border-radius: 999px; overflow: hidden; }
+    .chance-barra i { display: block; height: 100%; background: var(--azul); border-radius: 999px; transition: width 0.9s cubic-bezier(0.3, 0.8, 0.3, 1); }
+    .chance.ganhou button { background: var(--rosa-claro); border-color: var(--rosa-borda); }
+    .chance.ganhou .chance-barra i { background: var(--rosa); }
+    .chance.ganhou .chance-pct { color: var(--rosa-forte); }
+    .chance.fora button { background: #f3f6fa; border-style: dashed; opacity: 0.55; }
+    .chance.fora .chance-pct { color: var(--suave); }
+    .chance.luz button { background: #fff6d6; border-color: #f5c451; transform: scale(1.04); }
+    .chance.vencedor button { background: #fff6d6; border-color: #f5c451; box-shadow: 0 0 0 4px rgba(245, 196, 81, 0.35); }
+    .dica-sorteio { margin: 12px 0 0; font-size: 0.88rem; color: var(--suave); }
+    .extra { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 14px; }
+    .extra .botao { min-height: 50px; font-size: 1.05rem; }
+
+    /* quem já ganhou */
+    .ganhadores { display: grid; gap: 8px; margin: 0; padding-left: 1.7em; }
+    .ganhadores li { line-height: 1.4; }
+    .ganhadores li::marker { font-weight: 800; color: var(--suave); }
+    .ganhadores b { color: var(--azul-escuro); }
+    .ganhadores .premio { color: var(--rosa-forte); font-weight: 800; }
+    .ganhadores .vazio { margin-left: -1.7em; list-style: none; }
+    .vazio { margin: 0; color: var(--suave); }
+    .ferramentas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .ferramenta {
+      flex: 1 1 auto; min-height: 44px; padding: 8px 14px; font: inherit; font-weight: 800; font-size: 0.92rem; color: var(--azul-escuro);
+      background: var(--azul-claro); border: 0; border-radius: 12px; cursor: pointer;
+    }
+    .ferramenta.perigo { color: #a63a31; background: #fdecea; }
+    .ferramenta:disabled { opacity: 0.5; cursor: default; }
+    .ok { margin: 12px 0 0; font-weight: 800; color: #3d9a63; }
+    .ok:empty { display: none; }
+    .aviso-lista { margin: 0 0 12px; font-weight: 700; color: var(--aviso); }
+    .aviso-lista:empty { display: none; }
+
+    #confete { position: fixed; inset: 0; z-index: 50; width: 100%; height: 100%; pointer-events: none; }
+
+    @media (min-width: 700px) {
+      .chances { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+      .extra { grid-template-columns: minmax(0, 1fr) auto; }
+      .so-pc { display: inline-block; }
+    }
+    @media (min-width: 1100px) {
+      .mesa { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; }
+      .coluna-palco { position: sticky; top: 16px; }
+      .sorteado { min-height: 290px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="pagina pagina-sorteio">
+    <header class="topo-sorteio">
+      <div class="rostinho" id="rostinho"></div>
+      <div>
+        <h1>Sorteio do Chá do Noah</h1>
+        <p class="data" id="data"></p>
+      </div>
+      <div class="botoes-topo">
+        <button class="botao-icone" id="som" type="button" aria-pressed="true" title="Som do sorteio">🔊</button>
+        <button class="botao-icone so-pc" id="tela-cheia" type="button" title="Tela cheia (pra TV)">⛶ Tela cheia</button>
+      </div>
+    </header>
+
+    <section class="painel" id="entrar" hidden>
+      <form id="form-pin">
+        <label class="rotulo" for="pin">Senha (a mesma da página do pessoal)</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password">
+        <p class="aviso" id="aviso-pin" role="alert"></p>
+        <button class="botao botao-principal" type="submit">Entrar no sorteio</button>
+      </form>
+    </section>
+
+    <div class="mesa" id="mesa" hidden>
+      <div class="coluna coluna-palco">
+        <section class="painel palco" id="palco" aria-label="Sorteio">
+          <p class="premio-atual" id="premio-atual"></p>
+          <div class="sorteado" aria-live="polite">
+            <span class="sorteado-numero" id="sorteado-numero"></span>
+            <strong class="sorteado-nome" id="sorteado-nome">Quem será? 🥁</strong>
+            <span class="sorteado-detalhe" id="sorteado-detalhe"></span>
+          </div>
+          <form class="sortear" id="form-sortear">
+            <label class="rotulo" for="premio">O que vamos sortear agora?</label>
+            <input id="premio" type="text" maxlength="60" placeholder="Ex.: uma cesta de chocolates" autocomplete="off">
+            <button class="botao botao-principal botao-sortear" id="sortear" type="submit">🎲 Sortear!</button>
+          </form>
+          <button class="link" id="nao-esta" type="button" hidden>Não está aqui? Sortear de novo</button>
+        </section>
+
+        <section class="painel">
+          <h2>Quem já ganhou</h2>
+          <ol class="ganhadores" id="ganhadores"></ol>
+          <div class="ferramentas">
+            <button class="ferramenta" id="desfazer" type="button">↩️ Desfazer o último</button>
+            <button class="ferramenta" id="atualizar" type="button">🔄 Atualizar a lista</button>
+            <button class="ferramenta perigo" id="recomecar" type="button">🧹 Recomeçar o sorteio</button>
+          </div>
+          <p class="ok" id="aviso-sorteio" role="status"></p>
+        </section>
+      </div>
+
+      <section class="painel coluna">
+        <div>
+          <h2>A chance de cada um</h2>
+          <p class="aviso-lista" id="aviso-lista" role="status"></p>
+          <p class="explicacao" id="explicacao"></p>
+          <ul class="chances" id="chances"></ul>
+          <p class="dica-sorteio">Toque num nome pra tirar quem não veio (ou pra pôr de volta).</p>
+          <form class="extra" id="form-extra">
+            <label class="rotulo" for="extra" style="margin: 0; grid-column: 1 / -1;">Alguém veio e não preencheu o site?</label>
+            <input id="extra" type="text" maxlength="40" placeholder="Nome da pessoa" autocomplete="off">
+            <button class="botao botao-claro" type="submit">+ Pôr no sorteio</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+  <canvas id="confete" aria-hidden="true"></canvas>
+
+  <script src="config.js?v=7"></script>
+  <script src="desenhos.js?v=7"></script>
+  <script src="sorteio.js?v=7"></script>
+</body>
+</html>

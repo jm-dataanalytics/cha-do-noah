@@ -223,7 +223,7 @@ const CARTOES = (() => {
     return tela;
   }
 
-  // cartão 2: o lembrete do que a pessoa leva (fralda e, se quiser, o mimo)
+  // cartão 2: o lembrete do que a pessoa leva (fralda e, se quiser, o mimo; sem fralda se a lista já completou)
   async function lembrete(d) {
     await carregarFontes();
     const tela = novaTela(LARGURA, ALTURA);
@@ -273,17 +273,32 @@ const CARTOES = (() => {
     const alturaPainel = Math.max(380, Math.min(540, limite - topoPainel - 26 - embaixo));
     const sobra = limite - (topoPainel + alturaPainel + 26 + embaixo);
     painel(ctx, 100, topoPainel, 880, alturaPainel, 60);
-    const larguraFralda = ((alturaPainel - 250) * 320) / 250;
-    const xFralda = LARGURA / 2 - larguraFralda / 2;
-    const yFralda = topoPainel + 14;
-    const escala = DESENHOS.desenhar(ctx, DESENHOS.fralda, xFralda, yFralda, larguraFralda);
-    const [cx, cy] = DESENHOS.fralda.centro;
-    linha(ctx, d.fralda.tamanho, xFralda + cx * escala, yFralda + cy * escala + 8 * escala, 0.54 * larguraFralda,
-      (t) => fredoka(700, t), Math.round((d.fralda.tamanho.length > 1 ? 110 : 134) * escala / 1.1875), 40, COR.azul);
     const fimPainel = topoPainel + alturaPainel;
-    linha(ctx, `Tamanho ${d.fralda.tamanho}`, LARGURA / 2, fimPainel - 176, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
-    linha(ctx, d.fralda.nome, LARGURA / 2, fimPainel - 114, 800, (t) => nunito(800, t), 42, 28, COR.azul);
-    linha(ctx, CHA.levar, LARGURA / 2, fimPainel - 54, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+    if (d.fralda) {
+      const larguraFralda = ((alturaPainel - 250) * 320) / 250;
+      const xFralda = LARGURA / 2 - larguraFralda / 2;
+      const yFralda = topoPainel + 14;
+      const escala = DESENHOS.desenhar(ctx, DESENHOS.fralda, xFralda, yFralda, larguraFralda);
+      const [cx, cy] = DESENHOS.fralda.centro;
+      linha(ctx, d.fralda.tamanho, xFralda + cx * escala, yFralda + cy * escala + 8 * escala, 0.54 * larguraFralda,
+        (t) => fredoka(700, t), Math.round((d.fralda.tamanho.length > 1 ? 110 : 134) * escala / 1.1875), 40, COR.azul);
+      linha(ctx, `Tamanho ${d.fralda.tamanho}`, LARGURA / 2, fimPainel - 176, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
+      linha(ctx, d.fralda.nome, LARGURA / 2, fimPainel - 114, 800, (t) => nunito(800, t), 42, 28, COR.azul);
+      linha(ctx, CHA.levar, LARGURA / 2, fimPainel - 54, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+    } else {
+      // a lista das fraldas já tinha completado: no lugar da fralda, um coração (a pessoa leva só o abraço)
+      const alto = alturaPainel - 262;
+      const yCoracao = topoPainel + 24 + alto / 2;
+      coracao(ctx, LARGURA / 2, yCoracao + alto * 0.04, alto * 1.12, "#F7B6C5");
+      coracao(ctx, LARGURA / 2 - alto * 0.2, yCoracao - alto * 0.14, alto * 0.22, "rgba(255,255,255,0.55)");
+      estrela(ctx, LARGURA / 2 - alto * 0.86, yCoracao - alto * 0.22, 12, COR.amarelo);
+      estrela(ctx, LARGURA / 2 + alto * 0.84, yCoracao + alto * 0.16, 10, COR.azulClaro);
+      estrela(ctx, LARGURA / 2 + alto * 0.7, yCoracao - alto * 0.36, 8, COR.amarelo, 4, 0.35);
+      // (o "ç" de abraço desce: esta linha fica um pouco mais longe da de baixo que o "Tamanho M")
+      linha(ctx, "O seu abraço", LARGURA / 2, fimPainel - 188, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
+      linha(ctx, "As fraldas já estão garantidas", LARGURA / 2, fimPainel - 116, 800, (t) => nunito(800, t), 42, 28, COR.azul);
+      linha(ctx, "Não precisa trazer fralda, tá?", LARGURA / 2, fimPainel - 56, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+    }
 
     let y = fimPainel + 26 + Math.max(0, sobra / 2);
     if (d.mimo) {

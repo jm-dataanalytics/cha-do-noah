@@ -1,10 +1,13 @@
-// Página do jm: quem já preencheu, a contagem das fraldas, as 100 mensagens e o botão de limpar.
+// Página do jm: quem já preencheu (e a lista em Excel), a contagem das fraldas, o link do sorteio,
+// as 100 mensagens e o botão de limpar.
 (() => {
   const $ = (seletor) => document.querySelector(seletor);
   const url = CHA.planilha;
   const MEMORIA = "cha-do-noah-pin";
+  const SORTEIO = "cha-do-noah-sorteio"; // o que o sorteio deste aparelho guardou (entra no Excel)
   const metas = Object.fromEntries(CHA.fraldas.map((f) => [f.tamanho, f.pacotes]));
   let pin = "";
+  let ultima = null; // a última lista que veio da planilha (pro Excel)
 
   $("#rostinho").innerHTML = DESENHOS.iconeSvg(true);
   const [ano, mes, dia] = CHA.data.split("-").map(Number);
@@ -62,30 +65,38 @@
       contagem.append(barra);
     }
     const soma = CHA.fraldas.reduce((t, f) => t + f.pacotes, 0);
-    $("#total").textContent = `${r.pessoal.length} ${r.pessoal.length === 1 ? "pessoa preencheu" : "pessoas preencheram"} (das ${soma} fraldas da lista).`;
+    const semFralda = r.pessoal.filter((p) => !p.fralda).length;
+    $("#total").textContent = `${r.pessoal.length} ${r.pessoal.length === 1 ? "pessoa preencheu" : "pessoas preencheram"} (das ${soma} fraldas da lista)` +
+      (semFralda ? `, ${semFralda} sem fralda.` : ".");
+    $("#nota-completa").hidden = !s.cheia;
 
     const lista = $("#lista");
     lista.replaceChildren();
     if (!r.pessoal.length) lista.append(criar("li", "vazio", "Ninguém preencheu ainda."));
     const quemGanhou = {};
+    // a mais nova primeiro; o Nº é a ordem em que preencheram (o mesmo do Excel e do sorteio)
+    r.pessoal.forEach((p, i) => (p.numero = i + 1));
     for (const p of r.pessoal.slice().reverse()) {
       const item = criar("li", "pessoa");
-      item.append(criar("strong", "", `${p.nome}${p.chamado ? ` (${p.chamado})` : ""}`));
+      item.append(criar("span", "numero", `${p.numero}. `), criar("strong", "", `${p.nome}${p.chamado ? ` (${p.chamado})` : ""}`));
       const quando = new Date(p.quando);
       const detalhes = [
-        `Fralda ${p.fralda}${p.quemEscolheu === "a mamãe" ? " (a mamãe escolheu)" : ""}`,
+        p.fralda ? `Fralda ${p.fralda}${p.quemEscolheu === "a mamãe" ? " (a mamãe escolheu)" : ""}` : "Sem fralda (a lista já estava completa)",
         p.mimo ? "+ mimo 🎁" : "",
         `mensagem nº ${p.mensagem}`,
         p.whatsapp,
         isNaN(quando) ? "" : quando.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
       ].filter(Boolean);
-      item.append(criar("span", "detalhes", detalhes.join(" · ")));
+      // cada pedaço inteiro numa linha (o telefone não quebra no meio)
+      const linhaDetalhes = criar("span", "detalhes");
+      detalhes.forEach((d, j) => linhaDetalhes.append(...(j ? [document.createTextNode(" · ")] : []), criar("span", "", d)));
+      item.append(linhaDetalhes);
       lista.append(item);
       (quemGanhou[p.mensagem] = quemGanhou[p.mensagem] || []).push(p.nome);
     }
     mostrarMensagens(quemGanhou);
+    ultima = r;
     $("#painel-pessoal").hidden = false;
-    $("#zerar").hidden = false;
     $("#entrar").hidden = true;
   }
 
@@ -106,6 +117,32 @@
   $("#form-pin").addEventListener("submit", (e) => {
     e.preventDefault();
     entrar($("#pin").value.trim());
+  });
+
+  $("#baixar-excel").addEventListener("click", async () => {
+    const botao = $("#baixar-excel");
+    const texto = botao.textContent;
+    $("#aviso-excel").textContent = "";
+    botao.disabled = true;
+    botao.textContent = "Fazendo a lista...";
+    try {
+      // pega a lista de novo, pra sair com quem acabou de preencher
+      const r = (await pedir({ acao: "lista", pin, metas })) || ultima;
+      if (r && r.ok) mostrar(r);
+      let sorteio = [];
+      try {
+        sorteio = (JSON.parse(localStorage.getItem(SORTEIO) || "null") || {}).premios || [];
+      } catch (e) {
+        // sem memória: o Excel sai sem a aba do sorteio
+      }
+      await LISTA_EXCEL.baixar({ pessoal: ultima.pessoal, sorteio });
+    } catch (e) {
+      console.error(e);
+      $("#aviso-excel").textContent = "Não consegui fazer o Excel. Confira a internet e tente de novo.";
+    } finally {
+      botao.disabled = false;
+      botao.textContent = texto;
+    }
   });
 
   $("#limpar").addEventListener("click", async () => {

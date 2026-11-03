@@ -19,7 +19,8 @@ Com a planilha do Google ligada (`CHA.planilha` no `config.js`):
 
 - as **100 mensagens** nunca se repetem;
 - as fraldas seguem a **proporção das 50**: o tamanho que completa fica apagado, e "a mamãe escolhe" pega o que mais está faltando;
-- a página **`pessoal.html`** (com senha) mostra quem preencheu, a contagem e as mensagens usadas, e tem o botão **Limpar o pessoal**.
+- quando **as 50 completam**, o site para de pedir fralda: o Noah agradece, diz que a pessoa não precisa trazer nada, e ela ganha os cartões do mesmo jeito;
+- a página **`pessoal.html`** (com senha) mostra quem preencheu, a contagem e as mensagens usadas, baixa **a lista em Excel** (pronta pra imprimir) e tem o botão **Limpar o pessoal**.
 
 Sem a planilha, o site funciona sozinho, mas não conta as fraldas nem garante mensagem única.
 
@@ -38,4 +39,5 @@ Tudo fica em **`config.js`**: data, horário, endereço, fraldas, as falas do No
 | `cartoes.js` | desenha os 2 cartões PNG (1080 x 1350) e a imagem do link |
 | `desenhos.js` | o Noah, os bichinhos, a fralda, o presente e os ícones, desenhados em código |
 | `pessoal.html`, `pessoal.js` | a página do pessoal (só pros pais) |
+| `lista-excel.js` | a lista do pessoal em Excel (.xlsx), feita no navegador |
 | `img/`, `manifest.webmanifest` | a imagem do link no WhatsApp e os ícones |

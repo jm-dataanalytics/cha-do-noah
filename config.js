@@ -19,7 +19,8 @@ const CHA = {
   levar: "1 pacote de fraldas descartáveis",
 
   // As 50 fraldas, na proporção que vocês querem. Com a planilha ligada, o site vai mostrando só
-  // os tamanhos que ainda faltam (o que completar some e os outros aparecem).
+  // os tamanhos que ainda faltam (o que completar fica apagado). Quando as 50 completam, o site para de
+  // pedir fralda e agradece. Pra abrir mais, é só aumentar os números aqui.
   fraldas: [
     { tamanho: "RN", nome: "Recém-nascido", pacotes: 2 },
     { tamanho: "P", nome: "Pequena", pacotes: 5 },
@@ -42,6 +43,10 @@ const CHA = {
     mamaeEscolhe: "E se vocês deixarem… a mamãe pode escolher o tamanho por vocês, pensando no que vou precisar quando chegar.",
     pedidoMamae: "Pode escolher por mim, mamãe! 🥰",
     botaoMamae: "Deixo a mamãe escolher 💙",
+    // quando a lista inteira de fraldas completar: o site para de pedir fralda e agradece
+    // (a pessoa ganha os cartões do mesmo jeito e não precisa trazer nada)
+    tituloCompleta: "Minhas fraldas já estão garantidas 💙",
+    completa: "Muita gente quis cuidar de mim, e a lista das fraldas ficou completa! 🥹 Então você não precisa trazer nada: o que eu mais quero é você lá no dia, conversando pertinho da barriga da mamãe pra eu ir decorando a sua voz.",
   },
 
   // O mimo é opcional. Quem marcar ganha um recadinho especial no lembrete (um destes).

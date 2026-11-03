@@ -404,6 +404,15 @@ input[type="tel"]:focus {
 
 #escolha-fralda .fala { text-align: center; }
 
+/* a lista inteira completou: a fala do Noah vira uma caixinha de agradecimento (sem tamanhos pra escolher) */
+#escolha-fralda.lista-completa .fala {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 1rem;
+  background: var(--azul-marcado);
+  border-radius: 18px;
+}
+
 /* "Pode escolher por mim, mamãe!": caixinha azul-clara com o botão redondo */
 .mamae-escolhe .chip {
   gap: 10px;
