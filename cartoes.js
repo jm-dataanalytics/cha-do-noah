@@ -223,7 +223,8 @@ const CARTOES = (() => {
     return tela;
   }
 
-  // cartão 2: o lembrete do que a pessoa leva (fralda e, se quiser, o mimo; sem fralda se a lista já completou)
+  // cartão 2: o lembrete do que a pessoa leva (fralda e, se quiser, o mimo; sem fralda se a lista já completou;
+  // o pix, com a chave, se a pessoa escolheu o pix)
   async function lembrete(d) {
     await carregarFontes();
     const tela = novaTela(LARGURA, ALTURA);
@@ -246,7 +247,7 @@ const CARTOES = (() => {
       x: 90, y: 100, largura: 900, altura: 124,
       fonte: (t) => fredoka(600, t), maior: 62, menor: 40, entrelinha: 1.1, cor: COR.texto,
     });
-    linha(ctx, "No dia do chá, você vai levar:", LARGURA / 2, 260, 900, (t) => nunito(600, t), 40, 28, COR.texto);
+    linha(ctx, d.pix ? "O seu jeitinho de me ajudar:" : "No dia do chá, você vai levar:", LARGURA / 2, 260, 900, (t) => nunito(600, t), 40, 28, COR.texto);
 
     // ---- medidas do que vai embaixo do painel da fralda: o mimo (se tiver) e o quando/onde ----
     const xTexto = 192;
@@ -286,18 +287,24 @@ const CARTOES = (() => {
       linha(ctx, d.fralda.nome, LARGURA / 2, fimPainel - 114, 800, (t) => nunito(800, t), 42, 28, COR.azul);
       linha(ctx, CHA.levar, LARGURA / 2, fimPainel - 54, 800, (t) => nunito(600, t), 38, 26, COR.texto);
     } else {
-      // a lista das fraldas já tinha completado: no lugar da fralda, um coração (a pessoa leva só o abraço)
+      // sem fralda (a lista já tinha completado, ou a pessoa escolheu o pix): no lugar da fralda, um coração
       const alto = alturaPainel - 262;
       const yCoracao = topoPainel + 24 + alto / 2;
-      coracao(ctx, LARGURA / 2, yCoracao + alto * 0.04, alto * 1.12, "#F7B6C5");
+      coracao(ctx, LARGURA / 2, yCoracao + alto * 0.04, alto * 1.12, d.pix ? "#A9E0D9" : "#F7B6C5");
       coracao(ctx, LARGURA / 2 - alto * 0.2, yCoracao - alto * 0.14, alto * 0.22, "rgba(255,255,255,0.55)");
       estrela(ctx, LARGURA / 2 - alto * 0.86, yCoracao - alto * 0.22, 12, COR.amarelo);
       estrela(ctx, LARGURA / 2 + alto * 0.84, yCoracao + alto * 0.16, 10, COR.azulClaro);
       estrela(ctx, LARGURA / 2 + alto * 0.7, yCoracao - alto * 0.36, 8, COR.amarelo, 4, 0.35);
-      // (o "ç" de abraço desce: esta linha fica um pouco mais longe da de baixo que o "Tamanho M")
-      linha(ctx, "O seu abraço", LARGURA / 2, fimPainel - 188, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
-      linha(ctx, "As fraldas já estão garantidas", LARGURA / 2, fimPainel - 116, 800, (t) => nunito(800, t), 42, 28, COR.azul);
-      linha(ctx, "Não precisa trazer fralda, tá?", LARGURA / 2, fimPainel - 56, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+      // (o "ç" de abraço e o "p" de pix descem: esta linha fica um pouco mais longe da de baixo que o "Tamanho M")
+      if (d.pix) {
+        linha(ctx, `Um pix pro ${CHA.bebe}`, LARGURA / 2, fimPainel - 188, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
+        linha(ctx, `Chave: ${CHA.pix.chave}`, LARGURA / 2, fimPainel - 116, 800, (t) => nunito(800, t), 42, 28, "#1D7A70");
+        linha(ctx, `${CHA.pix.banco} · ${CHA.pix.valor}`, LARGURA / 2, fimPainel - 56, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+      } else {
+        linha(ctx, "O seu abraço", LARGURA / 2, fimPainel - 188, 800, (t) => fredoka(700, t), 72, 44, COR.azulEscuro);
+        linha(ctx, "As fraldas já estão garantidas", LARGURA / 2, fimPainel - 116, 800, (t) => nunito(800, t), 42, 28, COR.azul);
+        linha(ctx, "Não precisa trazer fralda, tá?", LARGURA / 2, fimPainel - 56, 800, (t) => nunito(600, t), 38, 26, COR.texto);
+      }
     }
 
     let y = fimPainel + 26 + Math.max(0, sobra / 2);

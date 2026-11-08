@@ -13,6 +13,10 @@
   --rosa-forte: #c2577a;
   --verde-whatsapp: #1f9d55;
   --aviso: #b5462f;
+  --pix: #2aa79b;
+  --pix-forte: #1d7a70;
+  --pix-claro: #e9f7f5;
+  --pix-borda: #b9e3dd;
   color-scheme: light;
 }
 
@@ -214,7 +218,29 @@ h1 {
   color: var(--texto);
 }
 
-.fala-mamae { margin: 18px 0 10px; }
+.fala-mamae { margin: 6px 0 10px; }
+
+/* "ou" entre os 3 jeitos de ajudar (o tamanho, a mamãe escolhe, o pix): deixa claro que é um ou outro */
+.ou {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--suave);
+}
+
+.ou::before,
+.ou::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--borda);
+  border-radius: 2px;
+}
 
 .previa-oi {
   margin: 8px 0 0;
@@ -434,10 +460,12 @@ input[type="tel"]:focus {
   font-family: "Fredoka", "Nunito", sans-serif;
   font-weight: 600;
   font-size: 1.08rem;
-  color: #fff;
-  background: #7d95b6;
+  color: var(--azul-forte);
+  background: #fff;
+  border: 2px solid var(--azul);
   border-radius: 999px;
-  transition: background-color 0.15s;
+  box-shadow: 0 3px 0 rgba(79, 134, 198, 0.22);
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .mamae-escolhe input:checked + .chip {
@@ -445,9 +473,123 @@ input[type="tel"]:focus {
   border-color: var(--azul);
 }
 
-.mamae-escolhe input:checked + .chip .botao-mamae { background: var(--azul); }
+.mamae-escolhe input:checked + .chip .botao-mamae { color: #fff; background: var(--azul); }
 
 .mamae-escolhe input:checked + .chip .botao-mamae::before { content: "✓ "; }
+
+/* o pix (3º jeito de ajudar): verde-água, pra não confundir com a mamãe (azul) nem com o mimo (rosa) */
+.pix-escolhe .chip {
+  gap: 10px;
+  min-height: 0;
+  padding: 14px 12px 12px;
+  background: var(--pix-claro);
+  border-color: transparent;
+}
+
+.pedido-pix {
+  font-weight: 700;
+  color: var(--pix-forte);
+}
+
+.botao-pix {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: var(--pix-forte);
+  background: #fff;
+  border: 2px solid var(--pix);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 rgba(42, 167, 155, 0.22);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.pix-escolhe input:checked + .chip {
+  background: var(--pix-claro);
+  border-color: var(--pix);
+  box-shadow: 0 0 0 3px rgba(42, 167, 155, 0.2);
+}
+.pix-escolhe input:checked + .chip .botao-pix { color: #fff; background: var(--pix); }
+.pix-escolhe input:checked + .chip .botao-pix::before { content: "✓ "; }
+
+.pix-detalhes {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f5fbfa;
+  border: 2px dashed var(--pix-borda);
+  border-radius: 18px;
+}
+
+#escolha-fralda .pix-detalhes .fala { text-align: left; }
+
+.pix-caixa {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.pix-rotulo {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--pix-forte);
+}
+
+.pix-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 8px 8px 8px 14px;
+  background: #fff;
+  border: 2px solid var(--pix-borda);
+  border-radius: 14px;
+}
+
+.pix-chave {
+  flex: 1000 1 auto;
+  min-width: 0;
+  font-size: 1.08rem;
+  color: var(--azul-escuro);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.botao-copiar {
+  flex: 1 0 auto;
+  min-height: 44px;
+  padding: 8px 16px;
+  font: inherit;
+  font-weight: 800;
+  color: #fff;
+  background: var(--pix);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.botao-copiar.copiado { background: #3d9a63; }
+
+.botao-copiar:focus-visible {
+  outline: 3px solid var(--azul-escuro);
+  outline-offset: 2px;
+}
+
+.pix-banco {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--suave);
+}
+
+.pix-passos {
+  margin: 2px 0 0;
+  padding-left: 1.4em;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.pix-passos li + li { margin-top: 2px; }
 
 /* mimo (opcional) */
 .mimo { margin-top: 14px; }
@@ -698,6 +840,94 @@ input[type="tel"]:focus {
 }
 
 .acoes .aviso { margin: 0; }
+
+/* depois dos cartões, pra quem escolheu o pix: a chave, o "Já fiz o pix" e as aulinhas de presente */
+.pix-resultado {
+  max-width: 520px;
+  margin: 26px auto 0;
+  padding: 20px 16px 18px;
+  background: #fff;
+  border: 2px solid var(--pix-borda);
+  border-radius: 22px;
+  box-shadow: 0 10px 26px rgba(36, 57, 92, 0.08);
+}
+
+.pix-resultado h3 {
+  margin: 0 0 12px;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 1.35rem;
+  text-align: center;
+  color: var(--pix-forte);
+}
+
+.botao-pix-feito {
+  margin-top: 16px;
+  color: #fff;
+  background: var(--pix);
+  box-shadow: 0 6px 16px rgba(42, 167, 155, 0.3);
+}
+
+.botao-pix-feito:hover { background: var(--pix-forte); }
+
+.aulinhas { margin-top: 16px; }
+
+.aulinhas .fala {
+  font-weight: 700;
+  text-align: center;
+  color: var(--azul-escuro);
+}
+
+.aulinhas-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.aulinha {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  color: var(--texto);
+  text-decoration: none;
+  background: #fbfdff;
+  border: 2px solid var(--borda);
+  border-radius: 16px;
+}
+
+.aulinha:hover { border-color: var(--azul); }
+
+.aulinha:focus-visible {
+  outline: 3px solid var(--azul-escuro);
+  outline-offset: 2px;
+}
+
+.aulinha-icone { font-size: 1.9rem; line-height: 1; }
+
+.aulinha-textos { min-width: 0; }
+
+.aulinha-textos strong {
+  display: block;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 1.15rem;
+  color: var(--azul-escuro);
+}
+
+.aulinha-textos small {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--suave);
+}
+
+.aulinha-baixar {
+  padding: 8px 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #fff;
+  white-space: nowrap;
+  background: var(--azul);
+  border-radius: 12px;
+}
 
 .dica {
   margin: 2px 0 0;

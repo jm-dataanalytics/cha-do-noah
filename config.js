@@ -65,6 +65,26 @@ const CHA = {
     ],
   },
 
+  // O pix: pra quem não teve tempo de comprar a fralda (jm, 08/11). Fica no lugar da fralda, como
+  // 3º jeito de ajudar. Quem faz o pix escolhe uma aulinha em PDF de presente (pasta aulinhas/).
+  pix: {
+    chave: "jm.fufrj@gmail.com",
+    tipoChave: "e-mail",
+    banco: "Bradesco",
+    valor: "Qualquer valor, a partir de R$ 5",
+    pedido: "Não deu tempo de comprar a fraldinha? 🥹",
+    botao: "Prefiro mandar um pix 💙",
+    fala: "Sem problema nenhum! Pode mandar um pix de qualquer valor, a partir de R$ 5, que o papai e a mamãe compram as fraldinhas pra mim. E o meu papai preparou um presentinho de volta: uma aulinha curtinha em PDF, pra você escolher depois do pix. 🤓",
+    obrigado: "Obrigado! 🥹 O papai separou estas aulinhas pra você. Escolha a que quiser:",
+  },
+
+  // As aulinhas (presente de quem faz o pix): o PDF fica na pasta aulinhas/
+  aulinhas: [
+    { icone: "📊", nome: "Excel", sobre: "fórmulas que facilitam a vida", arquivo: "aulinhas/aulinha-excel.pdf" },
+    { icone: "🚚", nome: "Logística", sobre: "organizar, guardar e nunca faltar", arquivo: "aulinhas/aulinha-logistica.pdf" },
+    { icone: "🛢️", nome: "Operacional", sobre: "como funciona um poço de petróleo", arquivo: "aulinhas/aulinha-operacional.pdf" },
+  ],
+
   // As 100 cartinhas do Noah: cada pessoa ganha uma diferente (com a planilha ligada, nunca repete).
   // O jeito (jm, 02/11: "enraiza isso", "pode e deve ser maior", "HUMANO", "tem que ter alma", "não pode
   // parecer venda", "eu gosto de todo mundo que vai"): o Noah, ainda na barriguinha, falando em primeira

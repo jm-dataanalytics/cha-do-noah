@@ -5,7 +5,8 @@
 O Noah, ainda na barriguinha da mamãe, conversa com quem abre o link:
 
 1. a pessoa coloca o nome e o WhatsApp, e o site já sabe se o Noah vai chamar de **titia** ou **titio** (dá pra trocar, e tem **vovó** e **vovô**);
-2. escolhe uma fraldinha, ou toca em **"Deixo a mamãe escolher"**;
+2. escolhe uma fraldinha, toca em **"Deixo a mamãe escolher"** ou, se não deu tempo de comprar, **manda um pix**
+   (quem manda o pix ganha de presente uma aulinha em PDF: Excel, logística ou como funciona um poço de petróleo);
 3. se quiser, marca que vai levar um **mimo**;
 4. ganha 2 cartões em PNG:
    - **o recado do Noah**, só dela ("Oi, titia Ana!"), que é o principal;
@@ -40,4 +41,5 @@ Tudo fica em **`config.js`**: data, horário, endereço, fraldas, as falas do No
 | `desenhos.js` | o Noah, os bichinhos, a fralda, o presente e os ícones, desenhados em código |
 | `pessoal.html`, `pessoal.js` | a página do pessoal (só pros pais) |
 | `lista-excel.js` | a lista do pessoal em Excel (.xlsx), feita no navegador |
+| `aulinhas/` | as 3 aulinhas em PDF (presente de quem manda o pix) |
 | `img/`, `manifest.webmanifest` | a imagem do link no WhatsApp e os ícones |

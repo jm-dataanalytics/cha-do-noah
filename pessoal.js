@@ -65,9 +65,11 @@
       contagem.append(barra);
     }
     const soma = CHA.fraldas.reduce((t, f) => t + f.pacotes, 0);
-    const semFralda = r.pessoal.filter((p) => !p.fralda).length;
+    const pix = r.pessoal.filter((p) => p.quemEscolheu === "pix").length;
+    const semFralda = r.pessoal.filter((p) => !p.fralda && p.quemEscolheu !== "pix").length;
+    const extras = [pix ? `${pix} ${pix === 1 ? "vai mandar pix" : "vão mandar pix"}` : "", semFralda ? `${semFralda} sem fralda` : ""].filter(Boolean);
     $("#total").textContent = `${r.pessoal.length} ${r.pessoal.length === 1 ? "pessoa preencheu" : "pessoas preencheram"} (das ${soma} fraldas da lista)` +
-      (semFralda ? `, ${semFralda} sem fralda.` : ".");
+      (extras.length ? `, ${extras.join(", ")}.` : ".");
     $("#nota-completa").hidden = !s.cheia;
 
     const lista = $("#lista");
@@ -81,7 +83,8 @@
       item.append(criar("span", "numero", `${p.numero}. `), criar("strong", "", `${p.nome}${p.chamado ? ` (${p.chamado})` : ""}`));
       const quando = new Date(p.quando);
       const detalhes = [
-        p.fralda ? `Fralda ${p.fralda}${p.quemEscolheu === "a mamãe" ? " (a mamãe escolheu)" : ""}` : "Sem fralda (a lista já estava completa)",
+        p.fralda ? `Fralda ${p.fralda}${p.quemEscolheu === "a mamãe" ? " (a mamãe escolheu)" : ""}`
+          : p.quemEscolheu === "pix" ? "Pix 💙 (no lugar da fralda)" : "Sem fralda (a lista já estava completa)",
         p.mimo ? "+ mimo 🎁" : "",
         `mensagem nº ${p.mensagem}`,
         p.whatsapp,

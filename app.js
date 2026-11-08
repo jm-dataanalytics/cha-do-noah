@@ -1,5 +1,5 @@
 // Chá do Noah: a pessoa coloca o nome e o WhatsApp, diz como o Noah vai chamar ela (titia, titio...),
-// escolhe a fraldinha (ou deixa a mamãe escolher) e, se quiser, o mimo. O site faz 2 cartões em PNG:
+// escolhe a fraldinha (ou deixa a mamãe escolher, ou manda um pix) e, se quiser, o mimo. O site faz 2 cartões em PNG:
 // o recado do Noah e o lembrete. Com a planilha ligada (CHA.planilha), o site conta as fraldas na
 // proporção, não deixa a mensagem repetir e, quando a lista inteira completa, para de pedir fralda.
 
@@ -110,14 +110,16 @@ function dataPorExtenso() {
 
 // tudo o que os cartões precisam
 // semFralda: a pessoa preencheu depois que a lista completou (fralda = null: leva só o abraço)
-function montarDados({ nome, chamado = "", telefone, tamanho = "*", mimo = false, numero = 0, mamaeEscolheu = false, semFralda = false }) {
+// pix: a pessoa manda um pix no lugar da fralda (fralda = null)
+function montarDados({ nome, chamado = "", telefone, tamanho = "*", mimo = false, numero = 0, mamaeEscolheu = false, semFralda = false, pix = false }) {
   const chamadoENome = comoONoahChama(chamado, nome);
   const n = numero || mensagemLocal(telefone, nome);
   return {
     nome: chamadoENome,
     telefone,
-    fralda: semFralda ? null : fraldaDoTamanho(tamanho) || fraldaPara(telefone),
-    mamaeEscolheu: !semFralda && (mamaeEscolheu || tamanho === "*"),
+    fralda: semFralda || pix ? null : fraldaDoTamanho(tamanho) || fraldaPara(telefone),
+    pix: pix && !semFralda,
+    mamaeEscolheu: !semFralda && !pix && (mamaeEscolheu || tamanho === "*"),
     numero: n,
     mimo: mimo ? mimoPara(telefone, nome) : "",
     ...mensagem(n, chamadoENome),
@@ -133,7 +135,9 @@ function textoDoWhatsApp(d, link) {
     "",
     d.fralda
       ? `Lembrete: no dia do chá, levar *${CHA.levar}*, tamanho *${d.fralda.tamanho}* (${d.fralda.nome}).`
-      : "Lembrete: as fraldas da lista já estão garantidas, então é só levar você! 💙",
+      : d.pix
+        ? `Lembrete: o pix pro ${CHA.bebe} 💙 Chave (${CHA.pix.tipoChave}): *${CHA.pix.chave}* (${CHA.pix.banco}). ${CHA.pix.valor}.`
+        : "Lembrete: as fraldas da lista já estão garantidas, então é só levar você! 💙",
   ];
   if (d.mimo) linhas.push(`🎁 E um mimo pro ${CHA.bebe}: ${d.mimo}`);
   linhas.push("", `📅 ${d.dataExtenso}`);
@@ -221,6 +225,10 @@ const PLANILHA = (() => {
   $("#convite-mamae").textContent = CHA.convite.mamaeEscolhe;
   $("#pedido-mamae").textContent = CHA.convite.pedidoMamae;
   $("#botao-mamae").textContent = CHA.convite.botaoMamae;
+  $("#pedido-pix").textContent = CHA.pix.pedido;
+  $("#botao-pix").textContent = CHA.pix.botao;
+  $("#pix-fala").textContent = CHA.pix.fala;
+  $("#pix-obrigado").textContent = CHA.pix.obrigado;
   $("#mimo-convite").textContent = CHA.mimo.convite;
   $("#mimo-explicacao").textContent = CHA.mimo.explicacao;
   $("#mimo-presente").innerHTML = DESENHOS.paraSvg(DESENHOS.presente);
@@ -234,6 +242,73 @@ const PLANILHA = (() => {
     const bicho = DESENHOS[el.dataset.bicho];
     el.innerHTML = DESENHOS.paraSvg(DESENHOS.parte(bicho, el.dataset.parte));
     el.style.setProperty("--borda", (bicho.borda / bicho.largura).toFixed(4));
+  });
+
+  // a caixinha do pix (no formulário e depois dos cartões): a chave, o Copiar e o passo a passo,
+  // pra quem não é acostumado com pix
+  async function copiar(texto) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch (e) {
+      const campo = criar("textarea");
+      campo.value = texto;
+      campo.setAttribute("readonly", "");
+      campo.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.append(campo);
+      campo.select();
+      let ok = false;
+      try {
+        ok = document.execCommand("copy");
+      } catch (e2) {
+        ok = false;
+      }
+      campo.remove();
+      return ok;
+    }
+  }
+  document.querySelectorAll("[data-pix]").forEach((caixa) => {
+    const linha = criar("div", "pix-linha");
+    const botao = criar("button", "botao-copiar", "📋 Copiar");
+    botao.type = "button";
+    botao.setAttribute("aria-label", `Copiar a chave pix ${CHA.pix.chave}`);
+    linha.append(criar("strong", "pix-chave", CHA.pix.chave), botao);
+    const passos = criar("ol", "pix-passos");
+    const passo = (...partes) => {
+      const li = criar("li");
+      partes.forEach((p, i) => li.append(i % 2 ? criar("b", "", p) : document.createTextNode(p)));
+      passos.append(li);
+    };
+    passo("Toque em ", "Copiar", ".");
+    passo("No app do seu banco, entre em ", "Pix", " e escolha pagar com chave.");
+    passo("Cole a chave, ponha o valor e confirme.");
+    caixa.append(criar("span", "pix-rotulo", `Chave pix (${CHA.pix.tipoChave})`), linha,
+      criar("span", "pix-banco", `Banco: ${CHA.pix.banco} · ${CHA.pix.valor}`), passos);
+    botao.addEventListener("click", async () => {
+      const ok = await copiar(CHA.pix.chave);
+      botao.textContent = ok ? "✓ Copiado!" : "Segure na chave pra copiar";
+      botao.classList.toggle("copiado", ok);
+      setTimeout(() => {
+        botao.textContent = "📋 Copiar";
+        botao.classList.remove("copiado");
+      }, 2600);
+    });
+  });
+
+  // as aulinhas (presente de quem faz o pix): aparecem depois do "Já fiz o pix"
+  for (const a of CHA.aulinhas) {
+    const link = criar("a", "aulinha");
+    link.href = a.arquivo;
+    link.download = `Aulinha de ${a.nome} - ${CHA.titulo}.pdf`;
+    const textos = criar("span", "aulinha-textos");
+    textos.append(criar("strong", "", a.nome), criar("small", "", a.sobre));
+    link.append(criar("span", "aulinha-icone", a.icone), textos, criar("span", "aulinha-baixar", "📄 Baixar"));
+    $("#aulinhas-lista").append(link);
+  }
+  $("#pix-feito").addEventListener("click", () => {
+    $("#pix-feito").hidden = true;
+    $("#aulinhas").hidden = false;
+    $("#aulinhas").scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 
   // como o Noah vai chamar a pessoa
@@ -293,6 +368,10 @@ const PLANILHA = (() => {
     $("#tamanhos").hidden = sim;
     $("#convite-mamae").hidden = sim;
     $(".mamae-escolhe").hidden = sim;
+    // lista completa: também não oferece o pix (o Noah já disse que não precisa trazer nada)
+    $(".pix-escolhe").hidden = sim;
+    document.querySelectorAll("#escolha-fralda .ou").forEach((ou) => (ou.hidden = sim));
+    mostrarPix();
   }
 
   function pintarTamanhos(s) {
@@ -313,6 +392,13 @@ const PLANILHA = (() => {
   if (PLANILHA.ligada) PLANILHA.situacao().then((s) => s && pintarTamanhos(s));
 
   const tamanhoMarcado = () => (form.querySelector('input[name="tamanho"]:checked') || {}).value || "";
+  // escolheu o pix: abre a chave e o passo a passo logo embaixo
+  // (é chamada antes desta linha, pelo pintarTamanhos: por isso não usa o tamanhoMarcado)
+  function mostrarPix() {
+    const marcado = form.querySelector('input[name="tamanho"]:checked');
+    $("#pix-detalhes").hidden = listaCompleta || !marcado || marcado.value !== "pix";
+  }
+  $("#escolha-fralda").addEventListener("change", mostrarPix);
 
   // quem já preencheu neste aparelho encontra tudo de volta
   try {
@@ -327,6 +413,7 @@ const PLANILHA = (() => {
       }
       const radio = salvo.tamanho && form.querySelector(`input[name="tamanho"][value="${CSS.escape(salvo.tamanho)}"]`);
       if (radio && !radio.disabled) radio.checked = true;
+      mostrarPix();
       atualizarPreviaOi();
     }
   } catch (e) {
@@ -356,7 +443,7 @@ const PLANILHA = (() => {
     if (!chamado) return avisar(`Escolha como o ${CHA.bebe} vai te chamar.`, form.querySelector('input[name="chamado"]'));
     if (!telefone) return avisar("Confira o WhatsApp: DDD + número, ex.: (21) 99999-9999.", campoTelefone);
     const tamanho = listaCompleta ? "-" : tamanhoMarcado();
-    if (!tamanho) return avisar("Escolha uma fraldinha pra mim (ou deixe a mamãe escolher!).", $("#escolha-fralda"));
+    if (!tamanho) return avisar("Escolha uma fraldinha pra mim (ou deixe a mamãe escolher, ou mande um pix)!", $("#escolha-fralda"));
 
     botaoGerar.disabled = true;
     botaoGerar.textContent = "Fazendo seus cartões...";
@@ -378,12 +465,13 @@ const PLANILHA = (() => {
           return avisar("A lista das fraldinhas mudou 💙 Escolhe uma pra mim?", $("#escolha-fralda"));
         }
         if (r && r.ok) {
-          pedido = { ...pedido, tamanho: r.tamanho, semFralda: !!r.semFralda, numero: r.mensagem, mamaeEscolheu: r.mamaeEscolheu, mimo: r.mimo };
+          pedido = { ...pedido, tamanho: r.tamanho, semFralda: !!r.semFralda, pix: !!r.pix, numero: r.mensagem, mamaeEscolheu: r.mamaeEscolheu, mimo: r.mimo };
           repetido = !!r.repetido;
           if (r.situacao) pintarTamanhos(r.situacao);
         }
       }
       if (pedido.tamanho === "-") pedido = { ...pedido, semFralda: true };
+      if (pedido.tamanho === "pix") pedido = { ...pedido, pix: true };
       if (pedido.tamanho === "*") pedido = { ...pedido, tamanho: fraldaPara(telefone).tamanho, mamaeEscolheu: true };
       const dados = montarDados(pedido);
       const telas = [await CARTOES.recado(dados), await CARTOES.lembrete(dados)];
@@ -422,14 +510,18 @@ const PLANILHA = (() => {
     $("#baixar-lembrete").download = arquivos[1].name;
     $("#resultado-titulo").textContent = `Prontinho, ${d.nome}!`;
     let leva;
-    if (!d.fralda) leva = `As fraldas da lista já estão garantidas: você vai levar ${d.mimo ? "o seu abraço e um mimo 🎁" : "só o seu abraço 💙"}`;
+    if (d.pix) leva = `Você escolheu mandar um pix pro ${CHA.bebe} 💙${d.mimo ? " E vai levar um mimo 🎁" : ""}`;
+    else if (!d.fralda) leva = `As fraldas da lista já estão garantidas: você vai levar ${d.mimo ? "o seu abraço e um mimo 🎁" : "só o seu abraço 💙"}`;
     else {
       const fralda = `fralda ${d.fralda.tamanho} (${d.fralda.nome})${d.mimo ? " + um mimo 🎁" : ""}`;
       leva = d.mamaeEscolheu ? `A mamãe escolheu pra você: ${fralda}.` : `Você vai levar: ${fralda}.`;
     }
     $("#resultado-fralda").textContent = (repetido ? "Você já tinha feito seus cartões 💙 " : "") + leva;
-    $("#lembrete-resumo").textContent = `${d.fralda ? `Fralda ${d.fralda.tamanho}` : "Seu abraço"}${d.mimo ? " + mimo" : ""} · ${d.dataExtenso.split(",")[0]}, ${CHA.data.split("-").reverse().slice(0, 2).join("/")}`;
+    $("#lembrete-resumo").textContent = `${d.fralda ? `Fralda ${d.fralda.tamanho}` : d.pix ? `Pix pro ${CHA.bebe}` : "Seu abraço"}${d.mimo ? " + mimo" : ""} · ${d.dataExtenso.split(",")[0]}, ${CHA.data.split("-").reverse().slice(0, 2).join("/")}`;
     avisoResultado.textContent = "";
+    $("#pix-resultado").hidden = !d.pix;
+    $("#pix-feito").hidden = false;
+    $("#aulinhas").hidden = true;
     resultado.hidden = false;
     resultado.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -453,6 +545,7 @@ const PLANILHA = (() => {
   $("#outra").addEventListener("click", () => {
     resultado.hidden = true;
     form.reset();
+    mostrarPix();
     chamadoManualPara = "";
     atualizarPreviaOi();
     avisar("");

@@ -138,7 +138,7 @@ const LISTA_EXCEL = (() => {
         comMaiuscula(p.chamado),
         p.whatsapp,
         p.fralda || SEM_FRALDA,
-        p.fralda ? p.quemEscolheu : "lista completa",
+        p.fralda || p.quemEscolheu === "pix" ? p.quemEscolheu : "lista completa",
         p.mimo ? "Sim" : "",
         p.mensagem || "",
         isNaN(quando) ? "" : paraExcel(quando),
@@ -189,7 +189,8 @@ const LISTA_EXCEL = (() => {
     const extras = [
       ["Pessoas na lista", { formula: "COUNT(Lista!$A:$A)", result: n }],
       ["Vão levar mimo", { formula: 'COUNTIF(Lista!$G:$G,"Sim")', result: pessoal.filter((p) => p.mimo).length }],
-      ["Sem fralda (lista já completa)", { formula: `COUNTIF(Lista!$E:$E,"${SEM_FRALDA}")`, result: pessoal.filter((p) => !p.fralda).length }],
+      ["Vão mandar pix (no lugar da fralda)", { formula: 'COUNTIF(Lista!$F:$F,"pix")', result: pessoal.filter((p) => p.quemEscolheu === "pix").length }],
+      ["Sem fralda (lista já completa)", { formula: 'COUNTIF(Lista!$F:$F,"lista completa")', result: pessoal.filter((p) => !p.fralda && p.quemEscolheu !== "pix").length }],
     ];
     extras.forEach(([rotulo, valor], i) => {
       const r = rTotal + 2 + i;
