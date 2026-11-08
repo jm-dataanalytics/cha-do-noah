@@ -75,14 +75,29 @@ const CHA = {
     pedido: "Não deu tempo de comprar a fraldinha? 🥹",
     botao: "Prefiro mandar um pix 💙",
     fala: "Sem problema nenhum! Pode mandar um pix de qualquer valor, a partir de R$ 5, que o papai e a mamãe compram as fraldinhas pra mim. E o meu papai preparou um presentinho de volta: uma aulinha curtinha em PDF, pra você escolher depois do pix. 🤓",
-    obrigado: "Obrigado! 🥹 O papai separou estas aulinhas pra você. Escolha a que quiser:",
+    obrigado: "Obrigado! 🥹 O meu papai separou umas aulinhas pra você. Escolha o assunto, que eu sorteio uma:",
   },
 
-  // As aulinhas (presente de quem faz o pix): o PDF fica na pasta aulinhas/
+  // As aulinhas (presente de quem faz o pix), em PDF na pasta aulinhas/. A pessoa escolhe o assunto e o site
+  // sorteia uma aulinha dele (ou ela toca em "Sorteia pra mim" e o assunto também é sorteado). Uma por assunto:
+  // são pedacinhos, não tudo junto (jm, 08/11). Os PDFs saem do testes\aulinhas\gerar_aulinhas.py.
   aulinhas: [
-    { icone: "📊", nome: "Excel", sobre: "fórmulas que facilitam a vida", arquivo: "aulinhas/aulinha-excel.pdf" },
-    { icone: "🚚", nome: "Logística", sobre: "organizar, guardar e nunca faltar", arquivo: "aulinhas/aulinha-logistica.pdf" },
-    { icone: "🛢️", nome: "Operacional", sobre: "como funciona um poço de petróleo", arquivo: "aulinhas/aulinha-operacional.pdf" },
+    { icone: "📊", nome: "Excel", sobre: "fórmulas, tabelas e prazos", lista: [
+      { titulo: "Excel sem medo: 5 fórmulas", arquivo: "aulinhas/excel-formulas.pdf" },
+      { titulo: "Tabela dinâmica em 5 minutos", arquivo: "aulinhas/excel-tabela-dinamica.pdf" },
+      { titulo: "Datas e prazos no Excel", arquivo: "aulinhas/excel-datas.pdf" },
+    ] },
+    { icone: "🚚", nome: "Logística", sobre: "estoque, inventário e expedição", lista: [
+      { titulo: "Logística sem mistério", arquivo: "aulinhas/logistica-estoque.pdf" },
+      { titulo: "Inventário sem dor de cabeça", arquivo: "aulinhas/logistica-inventario.pdf" },
+      { titulo: "Expedição que não volta", arquivo: "aulinhas/logistica-expedicao.pdf" },
+    ] },
+    { icone: "🛢️", nome: "Operacional", sobre: "poços, elevação artificial e BCS", lista: [
+      { titulo: "Como funciona um poço de petróleo", arquivo: "aulinhas/operacional-poco.pdf" },
+      { titulo: "Elevação artificial", arquivo: "aulinhas/operacional-elevacao.pdf" },
+      { titulo: "BCS por dentro: bomba, motor e selo", arquivo: "aulinhas/operacional-bcs.pdf" },
+      { titulo: "Os inimigos do BCS", arquivo: "aulinhas/operacional-cuidados-bcs.pdf" },
+    ] },
   ],
 
   // As 100 cartinhas do Noah: cada pessoa ganha uma diferente (com a planilha ligada, nunca repete).

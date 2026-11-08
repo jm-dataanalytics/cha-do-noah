@@ -295,16 +295,73 @@ const PLANILHA = (() => {
     });
   });
 
-  // as aulinhas (presente de quem faz o pix): aparecem depois do "Já fiz o pix"
-  for (const a of CHA.aulinhas) {
-    const link = criar("a", "aulinha");
-    link.href = a.arquivo;
-    link.download = `Aulinha de ${a.nome} - ${CHA.titulo}.pdf`;
+  // as aulinhas (presente de quem faz o pix): depois do "Já fiz o pix", a pessoa escolhe o assunto e o site sorteia
+  // uma aulinha dele (ou sorteia o assunto também). Cada assunto sorteia uma vez só por aparelho: voltar na página
+  // mostra a mesma aulinha, em vez de sortear outra.
+  const AULINHAS = "cha-do-noah-aulinhas";
+  let sorteando = false;
+  const aulinhasSalvas = () => {
+    try {
+      return JSON.parse(localStorage.getItem(AULINHAS) || "{}") || {};
+    } catch (e) {
+      return {};
+    }
+  };
+  const botoesAulinha = CHA.aulinhas.map((a) => {
+    const botao = criar("button", "aulinha");
+    botao.type = "button";
     const textos = criar("span", "aulinha-textos");
     textos.append(criar("strong", "", a.nome), criar("small", "", a.sobre));
-    link.append(criar("span", "aulinha-icone", a.icone), textos, criar("span", "aulinha-baixar", "📄 Baixar"));
-    $("#aulinhas-lista").append(link);
+    botao.append(criar("span", "aulinha-icone", a.icone), textos, criar("span", "aulinha-baixar", "🎲 Sortear"));
+    botao.addEventListener("click", () => sortearAulinha(a));
+    $("#aulinhas-lista").append(botao);
+    return botao;
+  });
+  function mostrarAulinha(a, item) {
+    $("#aulinha-saiu").textContent = `${a.icone} ${a.nome}: saiu pra você`;
+    $("#aulinha-titulo").textContent = item.titulo;
+    $("#aulinha-baixar").href = item.arquivo;
+    $("#aulinha-baixar").download = `${item.titulo.replace(/[:/\\?*"<>|]/g, "")} - ${CHA.titulo}.pdf`;
+    $("#aulinha-baixar").hidden = false;
+    $("#aulinha-dica").hidden = false;
   }
+  async function sortearAulinha(a) {
+    if (sorteando) return;
+    botoesAulinha.forEach((b, i) => b.classList.toggle("escolhida", CHA.aulinhas[i] === a));
+    $("#aulinha-sorteada").hidden = false;
+    const salvas = aulinhasSalvas();
+    let item = a.lista.find((x) => x.arquivo === salvas[a.nome]);
+    if (!item) {
+      item = a.lista[Math.floor(Math.random() * a.lista.length)];
+      // a roletinha: os títulos passam rapidinho antes de parar no sorteado
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches && a.lista.length > 1) {
+        sorteando = true;
+        $("#aulinha-baixar").hidden = true;
+        $("#aulinha-dica").hidden = true;
+        $("#aulinha-saiu").textContent = `${a.icone} ${a.nome}: sorteando...`;
+        for (let i = 0, espera = 70; espera < 260; i++, espera *= 1.18) {
+          $("#aulinha-titulo").textContent = a.lista[i % a.lista.length].titulo;
+          await new Promise((ok) => setTimeout(ok, espera));
+        }
+        sorteando = false;
+      }
+      salvas[a.nome] = item.arquivo;
+      try {
+        localStorage.setItem(AULINHAS, JSON.stringify(salvas));
+      } catch (e) {
+        // sem memória: só sorteia de novo se voltar
+      }
+    }
+    mostrarAulinha(a, item);
+    $("#aulinha-sorteada").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  // "Tanto faz": sorteia o assunto (de preferência um que ela ainda não pegou)
+  $("#sorteia-aulinha").addEventListener("click", () => {
+    const salvas = aulinhasSalvas();
+    const novos = CHA.aulinhas.filter((a) => !salvas[a.nome]);
+    const opcoes = novos.length ? novos : CHA.aulinhas;
+    sortearAulinha(opcoes[Math.floor(Math.random() * opcoes.length)]);
+  });
   $("#pix-feito").addEventListener("click", () => {
     $("#pix-feito").hidden = true;
     $("#aulinhas").hidden = false;
@@ -522,6 +579,8 @@ const PLANILHA = (() => {
     $("#pix-resultado").hidden = !d.pix;
     $("#pix-feito").hidden = false;
     $("#aulinhas").hidden = true;
+    $("#aulinha-sorteada").hidden = true;
+    botoesAulinha.forEach((b) => b.classList.remove("escolhida"));
     resultado.hidden = false;
     resultado.scrollIntoView({ behavior: "smooth", block: "start" });
   }

@@ -9,19 +9,19 @@
   <meta property="og:title" content="Chá do Noah 💙">
   <meta property="og:description" content="Oi, titia! Oi, titio! Escolha uma fraldinha pro Noah e ganhe um recado dele só pra você.">
   <meta property="og:url" content="https://jm-dataanalytics.github.io/cha-do-noah/">
-  <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png?v=8">
+  <meta property="og:image" content="https://jm-dataanalytics.github.io/cha-do-noah/img/previa.png?v=9">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="theme-color" content="#D3E8FA">
   <link rel="icon" href="img/icone.svg" type="image/svg+xml">
   <link rel="icon" href="img/noah.ico" sizes="any">
   <link rel="apple-touch-icon" href="img/icone-180.png">
-  <link rel="manifest" href="manifest.webmanifest?v=8">
+  <link rel="manifest" href="manifest.webmanifest?v=9">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
   <!-- o ?v= muda a cada versão: assim o navegador nunca mistura arquivo novo com velho -->
-  <link rel="stylesheet" href="estilo.css?v=8">
+  <link rel="stylesheet" href="estilo.css?v=9">
 </head>
 <body>
   <div class="ceu" aria-hidden="true">
@@ -125,6 +125,13 @@
         <div class="aulinhas" id="aulinhas" hidden>
           <p class="fala" id="pix-obrigado"></p>
           <div class="aulinhas-lista" id="aulinhas-lista"></div>
+          <button class="link" id="sorteia-aulinha" type="button">🎲 Tanto faz, sorteia pra mim!</button>
+          <div class="aulinha-sorteada" id="aulinha-sorteada" aria-live="polite" hidden>
+            <span class="aulinha-saiu" id="aulinha-saiu">Saiu pra você:</span>
+            <strong class="aulinha-titulo" id="aulinha-titulo"></strong>
+            <a class="botao botao-principal" id="aulinha-baixar" download>📄 Baixar a aulinha</a>
+            <small class="aulinha-dica" id="aulinha-dica">Quer de outro assunto também? É só tocar nele aí em cima.</small>
+          </div>
         </div>
       </section>
       <div class="lembrete-pequeno">
@@ -142,10 +149,10 @@
 
   <footer class="rodape">Feito com muito amor pro Noah <span class="rodape-coracao">♥</span></footer>
 
-  <script src="config.js?v=8"></script>
-  <script src="nomes.js?v=8"></script>
-  <script src="desenhos.js?v=8"></script>
-  <script src="cartoes.js?v=8"></script>
-  <script src="app.js?v=8"></script>
+  <script src="config.js?v=9"></script>
+  <script src="nomes.js?v=9"></script>
+  <script src="desenhos.js?v=9"></script>
+  <script src="cartoes.js?v=9"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

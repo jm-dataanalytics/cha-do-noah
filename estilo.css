@@ -887,15 +887,62 @@ input[type="tel"]:focus {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 12px 12px 12px 14px;
+  font: inherit;
+  text-align: left;
   color: var(--texto);
   text-decoration: none;
   background: #fbfdff;
   border: 2px solid var(--borda);
   border-radius: 16px;
+  cursor: pointer;
 }
 
 .aulinha:hover { border-color: var(--azul); }
+
+.aulinha.escolhida {
+  background: var(--azul-marcado);
+  border-color: var(--azul);
+}
+
+#sorteia-aulinha {
+  display: block;
+  margin: 10px auto 0;
+}
+
+/* a aulinha que saiu no sorteio, com o Baixar bem grande */
+.aulinha-sorteada {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin-top: 14px;
+  padding: 16px 14px;
+  text-align: center;
+  background: #fff8e6;
+  border: 2px solid #f5c451;
+  border-radius: 18px;
+}
+
+.aulinha-saiu {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #7a5a00;
+}
+
+.aulinha-titulo {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: var(--azul-escuro);
+}
+
+.aulinha-sorteada .botao { margin-top: 4px; }
+
+.aulinha-dica {
+  font-size: 0.86rem;
+  color: var(--suave);
+}
 
 .aulinha:focus-visible {
   outline: 3px solid var(--azul-escuro);

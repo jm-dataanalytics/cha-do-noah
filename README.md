@@ -6,7 +6,7 @@ O Noah, ainda na barriguinha da mamãe, conversa com quem abre o link:
 
 1. a pessoa coloca o nome e o WhatsApp, e o site já sabe se o Noah vai chamar de **titia** ou **titio** (dá pra trocar, e tem **vovó** e **vovô**);
 2. escolhe uma fraldinha, toca em **"Deixo a mamãe escolher"** ou, se não deu tempo de comprar, **manda um pix**
-   (quem manda o pix ganha de presente uma aulinha em PDF: Excel, logística ou como funciona um poço de petróleo);
+   (quem manda o pix escolhe um assunto, Excel, logística ou operacional, e ganha de presente uma aulinha em PDF sorteada dele);
 3. se quiser, marca que vai levar um **mimo**;
 4. ganha 2 cartões em PNG:
    - **o recado do Noah**, só dela ("Oi, titia Ana!"), que é o principal;
